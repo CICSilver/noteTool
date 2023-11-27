@@ -2,7 +2,8 @@
 
 #include <QtWidgets/QWidget>
 #include "ui_notetool.h"
-
+#include <QStandardItemModel>
+class QMenuBar;
 class NoteTool : public QWidget
 {
     Q_OBJECT
@@ -10,6 +11,8 @@ class NoteTool : public QWidget
 public:
     NoteTool(QWidget *parent = nullptr);
     ~NoteTool();
+    void Init();
+
 
 private:
     Ui::NoteToolClass ui;
