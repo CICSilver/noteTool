@@ -19,8 +19,8 @@ public:
 		static SqlHelper instance;
 		return &instance;
 	}
-	void RunSqlScript(QString scriptPath, QString connName = default_connName);
-
+	void RunSqlScript(QString scriptPath = "init.sql", QString connName = default_connName);
+	void AddDatabase(QString connName);
 	template<typename T>
 	void Insert(QString tableName, const T& model, QString connName = default_connName, bool isAutoIncrement = true);
 
@@ -35,23 +35,28 @@ public:
 private:
 	SqlHelper()
 	{
-		QString dbPath = "./data/" + QString(default_dbName);
+		QString dbPath = "./data/";
 		QDir dir;
 		if(!dir.exists(dbPath))
 		{
 			dir.mkpath(dbPath);
 		}
+		dbPath += QString(default_dbName);
 		//添加数据库连接
 		if (!QSqlDatabase::contains(default_connName))
 		{
 			QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", default_connName);
-			db.setDatabaseName(default_dbName);
+			db.setDatabaseName(dbPath);
 			db.setUserName(default_username);
 			db.setPassword(default_passwd);
+			m_connName.push_back(default_connName);
 		}
 	}
 	~SqlHelper() {}
-	void Execute(QString sql, QString connName = default_connName);
+	void Init();
+	QSqlQuery Execute(QString sql, QString connName = default_connName);
+
+	QList<QString> m_connName;
 };
 
 template<typename T>

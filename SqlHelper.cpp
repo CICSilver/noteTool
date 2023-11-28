@@ -10,11 +10,9 @@ void SqlHelper::RunSqlScript(QString scriptPath, QString connName)
 		qDebug() << "Could not open SQL script file: " << scriptPath;
 		return;
 	}
-
 	QTextStream in(&scriptFile);
 	QString sql = in.readAll();
 	scriptFile.close();
-
 	QStringList sqlStatements = sql.split(";", QString::SkipEmptyParts);
 	for (const QString& statement : sqlStatements)
 	{
@@ -25,10 +23,31 @@ void SqlHelper::RunSqlScript(QString scriptPath, QString connName)
 	}
 }
 
-void SqlHelper::Execute(QString sql, QString connName)
+void SqlHelper::AddDatabase(QString connName)
+{
+}
+
+void SqlHelper::Init()
+{
+	QString sql = "select name from sqlite_master where type='table' and name='word'";
+	if (m_connName.isEmpty())
+	{
+		qDebug() << "无打开的数据库连接！";
+	}
+	QString connName = m_connName.at(0);
+	QSqlDatabase db = QSqlDatabase::database(connName);
+	auto query = Execute(sql, connName);
+	if (query.next())
+	{
+		// 未查询到表，需要初始化
+		// 先删除所有表结构，然后重新插入
+		return;
+	}
+}
+
+QSqlQuery SqlHelper::Execute(QString sql, QString connName)
 {
 	QSqlDatabase db = QSqlDatabase::database(connName);
-	qDebug() << db.isOpen();
 	QSqlQuery query(db);
 	if (!db.isValid() || !db.open())
 	{
@@ -39,4 +58,5 @@ void SqlHelper::Execute(QString sql, QString connName)
 		qDebug() << "Failed to execute SQL statement: " << sql << ", error: " << query.lastError();
 	}
 	db.close();
+	return query;
 }

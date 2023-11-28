@@ -16,10 +16,11 @@ int main(int argc, char *argv[])
     //QTextCodec::setCodecForLocale(codec);
 #ifdef _DEBUG
     auto helper = SqlHelper::Instance();
-    DataModel model;
-    model.SetDate("2023-01-01");
-    model.SetId(1);
-    helper->Insert<DataModel>("Word", model);
+    helper->RunSqlScript();
+    //DataModel model;
+    //model.SetDate("2023-01-01");
+    //model.SetId(1);
+    //helper->Insert<DataModel>("Word", model);
 #endif // _DEBUG
 
     QApplication a(argc, argv);

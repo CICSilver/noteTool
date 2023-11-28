@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-
+#include <QTableWidget>
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -18,7 +18,7 @@ void MainWindow::InitLayout()
 
 void MainWindow::InitTable()
 {
-	QTableWidget* pTable = ui.tableWidget;
+	QTableWidget* pTable = ui.tableWidet;
 	pTable->setRowCount(1);
 	pTable->setColumnCount(3);
 	pTable->setHorizontalHeaderLabels(QStringList() << QStringLiteral("Éú´Ê") << QStringLiteral("ÊÍÒå") << QStringLiteral("´Ê¸ù"));
