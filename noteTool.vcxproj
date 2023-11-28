@@ -38,7 +38,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;widgets;sql</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="QtSettings">
@@ -54,16 +54,30 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
+    <Import Project="mypropsheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
+    <Import Project="mypropsheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
+    <ExternalIncludePath>.\includes;.\model;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtMoc>
+      <QtMocDir>$(IntDir)moc\</QtMocDir>
+    </QtMoc>
+    <QtRcc>
+      <QtRccDir>$(IntDir)rcc\</QtRccDir>
+    </QtRcc>
+    <QtUic>
+      <QtUicDir>$(IntDir)uic\</QtUicDir>
+    </QtUic>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -89,14 +103,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SqlHelper.cpp" />
     <QtRcc Include="notetool.qrc" />
-    <QtUic Include="mainwindow.ui" />
-    <QtUic Include="notetool.ui" />
+    <QtUic Include="ui\mainwindow.ui" />
+    <QtUic Include="ui\notetool.ui" />
     <QtMoc Include="notetool.h" />
-    <ClCompile Include="datamodel.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="notetool.cpp" />
     <ClCompile Include="main.cpp" />
+    <None Include="init.sql" />
     <None Include="noteTool.ico" />
     <ResourceCompile Include="noteTool.rc" />
   </ItemGroup>
@@ -104,8 +119,10 @@
     <QtMoc Include="mainwindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="datamodel.h" />
-    <ClInclude Include="json.hpp" />
+    <QtMoc Include="model\wordModel.h" />
+    <QtMoc Include="model\datamodel.h" />
+    <ClInclude Include="includes\json.hpp" />
+    <ClInclude Include="SqlHelper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

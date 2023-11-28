@@ -21,12 +21,15 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="models">
+      <UniqueIdentifier>{8eeaea76-37a5-4f68-ae12-649c65123b57}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="notetool.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtUic Include="notetool.ui">
+    <QtUic Include="ui\notetool.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtMoc Include="notetool.h">
@@ -49,12 +52,12 @@
     <ClCompile Include="mainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="datamodel.cpp">
+    <ClCompile Include="SqlHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="mainwindow.ui">
+    <QtUic Include="ui\mainwindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -62,13 +65,22 @@
     <QtMoc Include="mainwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="model\datamodel.h">
+      <Filter>models</Filter>
+    </QtMoc>
+    <QtMoc Include="model\wordModel.h">
+      <Filter>models</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="json.hpp">
+    <ClInclude Include="includes\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="datamodel.h">
+    <ClInclude Include="SqlHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="init.sql" />
   </ItemGroup>
 </Project>

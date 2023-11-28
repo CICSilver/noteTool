@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.setupUi(this);
 	InitLayout();
 	InitTable();
-	connect(this, &MainWindow::close, this, &MainWindow::close);
 }
 
 MainWindow::~MainWindow()
