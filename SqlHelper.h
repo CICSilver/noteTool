@@ -20,7 +20,12 @@ public:
 		return &instance;
 	}
 	void RunSqlScript(QString scriptPath = "init.sql", QString connName = default_connName);
-	void AddDatabase(QString connName);
+
+	/// <summary>
+	/// 初始化数据库的表结构
+	/// </summary>
+	void Init();
+
 	template<typename T>
 	void Insert(QString tableName, const T& model, QString connName = default_connName, bool isAutoIncrement = true);
 
@@ -53,7 +58,6 @@ private:
 		}
 	}
 	~SqlHelper() {}
-	void Init();
 	QSqlQuery Execute(QString sql, QString connName = default_connName);
 
 	QList<QString> m_connName;

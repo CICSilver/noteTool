@@ -1,4 +1,4 @@
-#include "notetool.h"
+﻿#include "notetool.h"
 #include "mainwindow.h"
 #include <QtWidgets/QApplication>
 #include <qtextcodec.h>
@@ -10,21 +10,18 @@
 #endif // _DEBUG
 
 #include <qdebug.h>
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    //QTextCodec* codec = QTextCodec::codecForName("GBK");
-    //QTextCodec::setCodecForLocale(codec);
+	//QTextCodec* codec = QTextCodec::codecForName("GBK");
+	//QTextCodec::setCodecForLocale(codec)
+	// 初始化数据库
+	auto helper = SqlHelper::Instance();
+	helper->Init();
 #ifdef _DEBUG
-    auto helper = SqlHelper::Instance();
-    helper->RunSqlScript();
-    //DataModel model;
-    //model.SetDate("2023-01-01");
-    //model.SetId(1);
-    //helper->Insert<DataModel>("Word", model);
 #endif // _DEBUG
 
-    QApplication a(argc, argv);
-    MainWindow w;
-    //w.show();
-    return a.exec();
+	QApplication a(argc, argv);
+	MainWindow w;
+	w.show();
+	return a.exec();
 }

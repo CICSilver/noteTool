@@ -2,13 +2,18 @@
     "SaveData":
     [
         {
-            "id":"1",   
             "date":"2016-01-01",
             "words":[
                 {"word":"xxx","root":"xxx","translation":"xxx"},
                 {"word":"xxx","root":"xxx","translation":"xxx"}
             ]
+        },
+        {
+            "date":"2016-01-02",
+            "words":[
+                {"word":"xxx","root":"xxx","translation":"xxx"},
+                {"word":"xxx","root":"xxx","translation":"xxx"}
+            ]
         }
-
     ]
 }

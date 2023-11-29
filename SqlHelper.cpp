@@ -1,4 +1,4 @@
-#include "SqlHelper.h"
+ï»¿#include "SqlHelper.h"
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
@@ -23,24 +23,21 @@ void SqlHelper::RunSqlScript(QString scriptPath, QString connName)
 	}
 }
 
-void SqlHelper::AddDatabase(QString connName)
-{
-}
-
 void SqlHelper::Init()
 {
-	QString sql = "select name from sqlite_master where type='table' and name='word'";
+	QString sql = "select name from sqlite_master where type='table' and name='Word'";
 	if (m_connName.isEmpty())
 	{
-		qDebug() << "ÎÞ´ò¿ªµÄÊý¾Ý¿âÁ¬½Ó£¡";
+		qDebug() << "æ— æ‰“å¼€çš„æ•°æ®åº“è¿žæŽ¥ï¼";
 	}
 	QString connName = m_connName.at(0);
 	QSqlDatabase db = QSqlDatabase::database(connName);
 	auto query = Execute(sql, connName);
-	if (query.next())
+	if (!query.next())
 	{
-		// Î´²éÑ¯µ½±í£¬ÐèÒª³õÊ¼»¯
-		// ÏÈÉ¾³ýËùÓÐ±í½á¹¹£¬È»ºóÖØÐÂ²åÈë
+		// æœªæŸ¥è¯¢åˆ°è¡¨ï¼Œéœ€è¦åˆå§‹åŒ–
+		RunSqlScript("init.sql");
+		qDebug() << "Init database";
 		return;
 	}
 }
