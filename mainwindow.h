@@ -3,9 +3,9 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include "ui_mainwindow.h"
-#include <QJsonArray>
-#include <QJsonObject>
+#include "datamodel.h"
 class CellBtn;
+class SqlHelper;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -16,20 +16,15 @@ public:
 	void InitLayout();
 	void InitTable();
 	void closeEvent(QCloseEvent* e) override;
-
-
 	void Save();
-	void InitSaveJson();
-	void PackJson();
 
 protected slots:
-	void OnShowSentence(int row);
-	// 当上一行写入数据后，创建下一行
-	void OnLastRowWrited(QTableWidgetItem* item);
+	void OnShowSentence();
+
+	void onCellClicked();
 private:
 	Ui::MainWindowClass ui;
-	QList<CellBtn*> m_btn_list;
-	const QString json_path = "./data/noteTool.json";
+	DataModel m_dataModel;
+	SqlHelper* helper;
 
-	void AddSentenceBtn(int row);
 };

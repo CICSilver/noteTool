@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include "cellbtn.h"
 #include <QTableWidget>
 #include <QDebug>
@@ -6,13 +6,22 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QDateTime>
+#include <iostream>
+#include "SqlHelper.h"
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+	helper = SqlHelper::Instance();
 	InitLayout();
 	InitTable();
-	connect(ui.tableWidet, &QTableWidget::itemChanged, this, &MainWindow::OnLastRowWrited);
+#ifdef _DEBUG
+	QString s = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	qDebug() << s;
+	//ui.wordTable->AppendWordRecord();
+#endif
+	//connect(ui.wordTable, &QTableWidget::itemChanged, this, &MainWindow::OnLastRowWrited);
+	//connect(ui.wordTable, &QTableWidget::cellClicked, this, &MainWindow::onCellClicked);
 }
 
 MainWindow::~MainWindow()
@@ -21,23 +30,31 @@ MainWindow::~MainWindow()
 void MainWindow::InitLayout()
 {
 	ui.centralWidget->setContentsMargins(QMargins(0, 0, 0, 0));
-	ui.openAction->setText(QStringLiteral("打开"));
-	ui.saveAction->setText(QStringLiteral("保存"));
+	ui.openAction->setText("打开");
+	ui.saveAction->setText("保存");
 }
 
 void MainWindow::InitTable()
 {
-	QTableWidget* pTable = ui.tableWidet;
-	pTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-	pTable->setRowCount(1);
-	pTable->setColumnCount(4);
-	pTable->setHorizontalHeaderLabels(QStringList() <<
-		QStringLiteral("生词") <<
-		QStringLiteral("释义") <<
-		QStringLiteral("词根") <<
-		QStringLiteral("例句"));
-	AddSentenceBtn(0);
+	// 初始化表格数据
+	// 从数据库查找当天内容，若找到则写入
+	QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	QSqlQuery query = helper->Where(tableName::Data, table_data::date +"="+ curDate);
+	if (query.next())
+	{
+		// TODO:有记录，则在Word表中查询相应的data_id
+		int data_id = query.value(table_data::id).toInt();
+		QSqlQuery wordQuery = helper->Where(tableName::Word, table_word::data_id + "=" + data_id);
+		while (wordQuery.next())
+		{
+			WordModel model;
+			model.SetWord(wordQuery.value(table_word::word).toString());
+			model.SetTranslation(wordQuery.value(table_word::translation).toString());
+			model.SetRoot(wordQuery.value(table_word::root).toString());
+			model.SetSentence(wordQuery.value(table_word::sentence).toString());
+			ui.wordTable->AppendWordRecord(model);
+		}
+	}
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
@@ -49,68 +66,29 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
 void MainWindow::Save()
 {
-	InitSaveJson();
-}
-
-void MainWindow::InitSaveJson()
-{
-	QFile file(json_path);
-	if (!file.exists())
+	DataModel dataModel;
+	dataModel.SetDate(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+	helper->Insert<DataModel>(tableName::Data, dataModel);
+	QSqlQuery query = helper->Where(tableName::Data, "1=1");
+	query.last();
+	int data_id = query.value(table_data::id).toInt();
+	QList<WordModel> word_list = ui.wordTable->Pack();
+	for (WordModel& wordModel : word_list)
 	{
-		QJsonObject root;
-		root["SaveData"] = QJsonArray();
-		if (file.open(QIODevice::WriteOnly))
-		{
-			qDebug() << "json file not exist, creating...";
-			QJsonDocument doc(root);
-			file.write(doc.toJson());
-			file.close();
-		}
-		else
-		{
-			qDebug() << "file open failed";
-		}
+		wordModel.SetDataId(data_id);
+		helper->Insert<WordModel>(tableName::Word, wordModel);
 	}
 }
 
-void MainWindow::PackJson()
+void MainWindow::onCellClicked()
 {
-	// 打包表格内容为json
-	auto pTable = ui.tableWidet;
-	for (int row = 0; row < pTable->rowCount(); ++row)
-	{
-		QJsonObject record;
-
-		for (int col = 0; col < pTable->colorCount(); ++col)
-		{
-
-		}
-	}
+	qDebug() << "onCellClicked";
 }
 
-void MainWindow::OnLastRowWrited(QTableWidgetItem* item)
-{
-	QTableWidget* pTable = ui.tableWidet;
-	if (item->row() != pTable->rowCount() - 1)
-		return;
-	// 改变内容的是最后一行，则增加新行
-	int newRowCnt = pTable->rowCount() + 1;
-	pTable->setRowCount(newRowCnt);
-	AddSentenceBtn(newRowCnt - 1);
-}
-
-void MainWindow::OnShowSentence(int row)
+void MainWindow::OnShowSentence()
 {
 	// 显示例句
-	qDebug() << "show" << row << "sentence";
-}
-
-void MainWindow::AddSentenceBtn(int row)
-{
-	QTableWidget* pTable = ui.tableWidet;
-	CellBtn* btn = new CellBtn(row);
-	btn->setText(QStringLiteral("显示"));
-	m_btn_list.append(btn);
-	connect(btn, &CellBtn::ShowSentence, this, &MainWindow::OnShowSentence);
-	pTable->setCellWidget(row, pTable->columnCount() - 1, btn);
+	CellBtn* btn = qobject_cast<CellBtn*>(sender());
+	if (!btn)
+		return;
 }

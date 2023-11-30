@@ -11,6 +11,28 @@
 #define default_connName "note_database_conn"
 #define default_username "xyr"
 #define default_passwd "123456"
+
+namespace tableName
+{
+	const QString Word = "Word";
+	const QString Data = "Data";
+}
+
+namespace table_word
+{
+	const QString data_id = "data_id";
+	const QString word = "word";
+	const QString translation = "translation";
+	const QString root = "root";
+	const QString sentence = "sentence";
+}
+
+namespace table_data
+{
+	const QString id = "id";
+	const QString date = "date";
+}
+
 class SqlHelper
 {
 public:
@@ -20,29 +42,43 @@ public:
 		return &instance;
 	}
 	void RunSqlScript(QString scriptPath = "init.sql", QString connName = default_connName);
+	// 处理数据库的重复插入错误
+	void DepulicateError() {};
+
 
 	/// <summary>
 	/// 初始化数据库的表结构
 	/// </summary>
 	void Init();
 
+	// 增
 	template<typename T>
 	void Insert(QString tableName, const T& model, QString connName = default_connName, bool isAutoIncrement = true);
 
+	// 改
+	template <typename T>
+	void Update(QString tableName, QString _where, T& model, QString connName = default_connName);
+
+	//删
 	void Delete(QString tableName, QString _where, QString connName = default_connName)
 	{
 		QString sql = "DELETE FROM " + tableName + " WHERE " + _where;
 		Execute(sql, connName);
 	}
 
-	template <typename T>
-	void Update(QString tableName, QString _where, T& model, QString connName = default_connName);
+	// 查
+	QSqlQuery Where(QString tableName, QString _where, QString connName = default_connName)
+	{
+		QString sql = "SELECT * FROM " + tableName + " WHERE " + _where;
+		return Execute(sql, connName);
+	}
+
 private:
 	SqlHelper()
 	{
 		QString dbPath = "./data/";
 		QDir dir;
-		if(!dir.exists(dbPath))
+		if (!dir.exists(dbPath))
 		{
 			dir.mkpath(dbPath);
 		}
@@ -94,6 +130,8 @@ inline void SqlHelper::Insert(QString tableName, const T& model, QString connNam
 		}
 	}
 	sql += ") " + values + ")";
+
+
 	Execute(sql);
 }
 
@@ -101,7 +139,7 @@ template<typename T>
 inline void SqlHelper::Update(QString tableName, QString _where, T& model, QString connName)
 {
 	const QMetaObject* metaobject = model.metaObject();
-	QString sql = "UPDATE "+tableName;
+	QString sql = "UPDATE " + tableName;
 	QString set = " SET ";
 	QString where = " WHERE " + _where;
 	int offset = QObject::staticMetaObject.propertyCount();
@@ -110,6 +148,6 @@ inline void SqlHelper::Update(QString tableName, QString _where, T& model, QStri
 	{
 		QMetaProperty property = metaobject->property(i);
 		const char* name = property.name();
-		
+
 	}
 }

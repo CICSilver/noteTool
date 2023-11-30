@@ -50,9 +50,15 @@ QSqlQuery SqlHelper::Execute(QString sql, QString connName)
 	{
 		qDebug() << "Insert failed. beacuse: " << db.lastError();
 	}
+
 	if (!query.exec(sql))
 	{
-		qDebug() << "Failed to execute SQL statement: " << sql << ", error: " << query.lastError();
+		QString errMsg = query.lastError().text();
+		if (errMsg.contains("UNIQUE"))
+		{
+			// TODO: 处理重复插入错误
+			DepulicateError();
+		}
 	}
 	db.close();
 	return query;

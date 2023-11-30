@@ -8,11 +8,14 @@ class CellBtn : public QPushButton
 	Q_OBJECT
 
 public:
-	CellBtn(int row, QWidget*parent = nullptr);
+	CellBtn(int row, QWidget* parent = nullptr);
 	~CellBtn();
 
+	void mousePressEvent(QMouseEvent* e) override;
+	int GetRow() { return m_row; }
+
 signals:
-	void ShowSentence(int i);
+	void ShowSentence();
 
 private:
 	Ui::CellBtnClass ui;

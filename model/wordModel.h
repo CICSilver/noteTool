@@ -5,13 +5,13 @@
 class WordModel : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QString word MEMBER m_word READ GetWord WRITE SetWord)
-	Q_PROPERTY(QString translation MEMBER m_translation READ GetTranslation WRITE SetTranslation)
-	Q_PROPERTY(QString root MEMBER m_root READ GetRoot WRITE SetRoot)
-	Q_PROPERTY(QString sentence MEMBER m_sentence READ GetSentence WRITE SetSentence)
-	Q_PROPERTY(int data_id MEMBER m_data_id READ GetDataId WRITE SetDataId)
+		Q_PROPERTY(QString word MEMBER m_word READ GetWord WRITE SetWord)
+		Q_PROPERTY(QString translation MEMBER m_translation READ GetTranslation WRITE SetTranslation)
+		Q_PROPERTY(QString root MEMBER m_root READ GetRoot WRITE SetRoot)
+		Q_PROPERTY(QString sentence MEMBER m_sentence READ GetSentence WRITE SetSentence)
+		Q_PROPERTY(int data_id MEMBER m_data_id READ GetDataId WRITE SetDataId)
 public:
-	WordModel(QObject *parent = nullptr) : QObject(parent)
+	WordModel(QObject* parent = nullptr) : QObject(parent)
 	{
 		m_data_id = -1;
 	};
@@ -27,7 +27,7 @@ public:
 	// Getters and setters
 	QString GetWord() const { return m_word; };
 	void SetWord(const QString& word) { m_word = word; }
-	QString GetTranslation() const { return m_translation;}
+	QString GetTranslation() const { return m_translation; }
 	void SetTranslation(const QString& translation) { m_translation = translation; }
 	QString GetRoot() const { return m_root; }
 	void SetRoot(const QString& root) { m_root = root; }
@@ -35,6 +35,11 @@ public:
 	void SetSentence(const QString& sentence) { m_sentence = sentence; }
 	int GetDataId() const { return m_data_id; }
 	void SetDataId(int data_id) { m_data_id = data_id; }
+
+	bool isEmpty() const
+	{
+		return m_word.isEmpty() && m_translation.isEmpty() && m_root.isEmpty() && m_sentence.isEmpty();
+	}
 
 private:
 	QString m_word;
