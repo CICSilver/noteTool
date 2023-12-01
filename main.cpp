@@ -1,5 +1,4 @@
-﻿#include "notetool.h"
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include <QtWidgets/QApplication>
 #include <qtextcodec.h>
 #ifdef _DEBUG

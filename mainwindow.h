@@ -18,9 +18,11 @@ public:
 	void closeEvent(QCloseEvent* e) override;
 	void Save();
 
+	void mousePressEvent(QMouseEvent *event) override;
+
 protected slots:
 	void OnShowSentence();
-
+	void onOpenActionTriggered(bool checked);
 	void onCellClicked();
 private:
 	Ui::MainWindowClass ui;

@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QDateTime>
 #include <iostream>
+#include <QMouseEvent>
 #include "SqlHelper.h"
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
@@ -16,12 +17,21 @@ MainWindow::MainWindow(QWidget* parent)
 	InitLayout();
 	InitTable();
 #ifdef _DEBUG
-	QString s = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	qDebug() << s;
-	//ui.wordTable->AppendWordRecord();
+	//WordModel word;
+	//word.SetWord("abadon");
+	//word.SetTranslation("放弃");
+	//word.SetRoot("don");
+	//ui.wordTable->AppendWordRecord(word);
 #endif
 	//connect(ui.wordTable, &QTableWidget::itemChanged, this, &MainWindow::OnLastRowWrited);
 	//connect(ui.wordTable, &QTableWidget::cellClicked, this, &MainWindow::onCellClicked);
+	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
+	connect(ui.wordTable, &WordTableWidget::TableClicked, this, [this]()
+		{
+			ui.lineEdit->clearFocus();
+			//ui.wordTable->setFocus();
+		});
+	this->installEventFilter(ui.wordTable);
 }
 
 MainWindow::~MainWindow()
@@ -39,12 +49,11 @@ void MainWindow::InitTable()
 	// 初始化表格数据
 	// 从数据库查找当天内容，若找到则写入
 	QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	QSqlQuery query = helper->Where(tableName::Data, table_data::date +"="+ curDate);
+	QSqlQuery query = helper->Where(tableName::Data, table_data::date +"='"+ curDate+"'");
 	if (query.next())
 	{
-		// TODO:有记录，则在Word表中查询相应的data_id
-		int data_id = query.value(table_data::id).toInt();
-		QSqlQuery wordQuery = helper->Where(tableName::Word, table_word::data_id + "=" + data_id);
+		QString data_id = query.value(table_data::id).toString();
+		QSqlQuery wordQuery = helper->Where(tableName::Word, table_word::data_id + "='" + data_id+"'");
 		while (wordQuery.next())
 		{
 			WordModel model;
@@ -55,6 +64,7 @@ void MainWindow::InitTable()
 			ui.wordTable->AppendWordRecord(model);
 		}
 	}
+	helper->Close();
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
@@ -72,12 +82,27 @@ void MainWindow::Save()
 	QSqlQuery query = helper->Where(tableName::Data, "1=1");
 	query.last();
 	int data_id = query.value(table_data::id).toInt();
+	qDebug() << data_id;
 	QList<WordModel> word_list = ui.wordTable->Pack();
 	for (WordModel& wordModel : word_list)
 	{
 		wordModel.SetDataId(data_id);
 		helper->Insert<WordModel>(tableName::Word, wordModel);
 	}
+}
+
+void MainWindow::mousePressEvent(QMouseEvent* event)
+{
+	qDebug() << "MainWindow::mousePressEvent";
+	if(childAt(event->pos()) != ui.lineEdit)
+	{
+		ui.lineEdit->clearFocus();
+	}
+	QMainWindow::mousePressEvent(event);
+}
+
+void MainWindow::onOpenActionTriggered(bool checked)
+{
 }
 
 void MainWindow::onCellClicked()

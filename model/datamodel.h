@@ -2,8 +2,8 @@
 #include <qstring.h>
 #include <QObject>
 #include "wordModel.h"
-// Ã¿ÈÕ¼ÇÂ¼µ¥´ÊÊı¾İÄ£ĞÍ
-// °üº¬ÈÕÆÚ¡¢µ¥´ÊÄ£ĞÍÁĞ±í
+// æ¯æ—¥è®°å½•å•è¯æ•°æ®æ¨¡å‹
+// åŒ…å«æ—¥æœŸã€å•è¯æ¨¡å‹åˆ—è¡¨
 class DataModel : public QObject
 {
 	Q_OBJECT
@@ -17,7 +17,9 @@ public:
 		m_id = -1;
 	};
 	~DataModel() {};
-
+	DataModel(const DataModel& other)
+		: m_id(other.m_id),
+		m_date(other.m_date) {}
 	// getters and setters
 	int GetId() const { return m_id; }
 	void SetId(int id) { m_id = id; }

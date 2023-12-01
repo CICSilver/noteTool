@@ -6,6 +6,7 @@
 #include <QMetaProperty>
 #include <QDir>
 #include <QDebug>
+#include "DataModel.h"
 
 #define default_dbName "noteTool.db"
 #define default_connName "note_database_conn"
@@ -45,34 +46,37 @@ public:
 	// 处理数据库的重复插入错误
 	void DepulicateError() {};
 
+	QList<DataModel> GetDataRecords(QString connName = default_connName);
+	QList<WordModel> GetWordRecords(int data_id = -1, QString connName = default_connName);
 
 	/// <summary>
 	/// 初始化数据库的表结构
 	/// </summary>
 	void Init();
 
-	// 增
 	template<typename T>
 	void Insert(QString tableName, const T& model, QString connName = default_connName, bool isAutoIncrement = true);
 
-	// 改
 	template <typename T>
 	void Update(QString tableName, QString _where, T& model, QString connName = default_connName);
 
-	//删
 	void Delete(QString tableName, QString _where, QString connName = default_connName)
 	{
 		QString sql = "DELETE FROM " + tableName + " WHERE " + _where;
 		Execute(sql, connName);
 	}
 
-	// 查
 	QSqlQuery Where(QString tableName, QString _where, QString connName = default_connName)
 	{
 		QString sql = "SELECT * FROM " + tableName + " WHERE " + _where;
 		return Execute(sql, connName);
 	}
 
+	void Close(QString connName = default_connName)
+	{
+		QSqlDatabase db = QSqlDatabase::database(connName);
+		db.close();
+	}
 private:
 	SqlHelper()
 	{
@@ -95,7 +99,6 @@ private:
 	}
 	~SqlHelper() {}
 	QSqlQuery Execute(QString sql, QString connName = default_connName);
-
 	QList<QString> m_connName;
 };
 

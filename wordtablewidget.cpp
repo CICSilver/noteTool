@@ -2,7 +2,9 @@
 #include "cellbtn.h"
 #include <QHeaderView>
 #include <QDebug>
-
+#include <QMessageBox>
+#include <QKeyEvent>
+#include <QMouseEvent>
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
@@ -79,16 +81,54 @@ QList<WordModel> WordTableWidget::Pack()
 		if (!word.isEmpty())
 			wordList.push_back(word);
 	}
-	return QList<WordModel>();
+	return wordList;
+}
+
+bool WordTableWidget::eventFilter(QObject* obj, QEvent* event) {
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		// 处理按键事件
+		qDebug() << "keypress";
+		keyPressEvent(keyEvent);
+		return true; // 返回true表示事件已被处理，不再传播
+	}
+	return false; // 返回false继续事件传播
+}
+
+void WordTableWidget::keyPressEvent(QKeyEvent* event)
+{
+	// 监测delete键
+	if (event->key() == Qt::Key_Delete)
+	{
+		qDebug() << "delete";
+		QList<QTableWidgetItem*> items = selectedItems();
+		if (items.isEmpty())
+			return;
+		int row = items.at(0)->row();
+		// 删除行
+		removeRow(row);
+		// 删除例句
+		if (row < m_sentenceList.size())
+			m_sentenceList.removeAt(row);
+	}
+	QTableWidget::keyPressEvent(event);
+}
+
+void WordTableWidget::mousePressEvent(QMouseEvent* event)
+{
+	emit TableClicked();
+	QTableWidget::mousePressEvent(event);
 }
 
 void WordTableWidget::ShowSentence()
 {
 	CellBtn* btn = qobject_cast<CellBtn*>(sender());
 	int row = btn->GetRow();
-	if (CheckInvalid(row, m_sentenceList.size()))
-		return;
-	qDebug() << "ShowSentence " << btn->GetRow() << m_sentenceList.at(row);
+	if (!CheckInvalid(row, m_sentenceList.size()))
+	{
+		qDebug() << "ShowSentence " << btn->GetRow() << m_sentenceList.at(row);
+		QMessageBox::information(this, "例句", m_sentenceList.at(row));
+	}
 };
 
 bool WordTableWidget::CheckInvalid(int i, int top, int bottom)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QTableWidget>
-#include "ui_wordtablewidget.h"
 #include "wordModel.h"
 
 class WordTableWidget : public QTableWidget
@@ -43,9 +42,15 @@ public:
 	 */
 	QList<WordModel> Pack();
 
+	bool eventFilter(QObject* obj, QEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void mousePressEvent(QMouseEvent* event) override;
+
+signals:
+	void TableClicked();
+
 protected slots:
 	void ShowSentence();
-
 private:
 	// check if i is not in [bottom, top)
 	bool CheckInvalid(int i, int top, int bottom = 0);

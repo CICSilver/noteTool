@@ -23,6 +23,38 @@ void SqlHelper::RunSqlScript(QString scriptPath, QString connName)
 	}
 }
 
+QList<DataModel> SqlHelper::GetDataRecords(QString connName)
+{
+	QList<DataModel> modelList;
+	QSqlQuery query = Where(tableName::Data, "1=1");
+	while (query.next())
+	{
+		DataModel model;
+		model.SetId(query.value(table_data::id).toInt());
+		model.SetDate(query.value(table_data::date).toString());
+		modelList.append(model);
+	}
+	QSqlDatabase::database(connName).close();
+	return modelList;
+}
+
+QList<WordModel> SqlHelper::GetWordRecords(int data_id, QString connName)
+{
+	QList<WordModel> modelList;
+	QString _where = data_id == -1 ? "1=1" : "data_id=" + data_id;
+	QSqlQuery query = Where(tableName::Word, _where);
+	while (query.next())
+	{
+		WordModel model;
+		model.SetWord(query.value(table_word::word).toString());
+		model.SetTranslation(query.value(table_word::translation).toString());
+		model.SetRoot(query.value(table_word::root).toString());
+		model.SetSentence(query.value(table_word::sentence).toString());
+		modelList.append(model);
+	}
+	return modelList;
+}
+
 void SqlHelper::Init()
 {
 	QString sql = "select name from sqlite_master where type='table' and name='Word'";
@@ -60,6 +92,5 @@ QSqlQuery SqlHelper::Execute(QString sql, QString connName)
 			DepulicateError();
 		}
 	}
-	db.close();
 	return query;
 }
