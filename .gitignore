@@ -364,3 +364,7 @@ FodyWeavers.xsd
 /noteTool.sln
 /noteTool.vcxproj
 /noteTool.vcxproj.filters
+
+# User-specific files
+temp/
+.vscode/
