@@ -61,7 +61,7 @@ private:
 	// check if i is not in [bottom, top)
 	bool CheckInvalid(int i, int top, int bottom = 0);
 	// 末尾添加空行，返回行号
-	int AppendRow();
+	int AppendRow(bool isSpan = false);
 	/*
 	 * @brief 检查行是否为空
 	 * @author xyr
@@ -71,10 +71,20 @@ private:
 	 * @note
 	 */
 	bool CheckRowEmpty(int row);
+
+	/*
+	 * @brief 检查是否为最后一行
+	 * @author xyr
+	 * @date 2023/12/04 15:28:23
+	 * @param 
+	 * @return
+	 * @note
+	 */
+	bool CheckIsLastRow(int row);
 private:
 	const int m_col_count = 4;
 	QList<QString> m_sentenceList;
 	QList<CellBtn*> m_cellBtnList;
 	QPushButton* m_addBtn;
-	QMap<int, int> m_rowSpanMap;	// 记录每行的单元格合并数
+	int m_rowCnt;
 };

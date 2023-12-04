@@ -9,6 +9,7 @@
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
+	//m_rowCnt = 0;
 	m_addBtn = new QPushButton("+", this);
 	m_addBtn->setToolTip("添加释义");
 	m_addBtn->setGeometry(0, 0, 16, 16);
@@ -32,17 +33,31 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	connect(m_addBtn, &QPushButton::clicked, this, &WordTableWidget::onAddBtnClicked);
 }
 
-int WordTableWidget::AppendRow()
+int WordTableWidget::AppendRow(bool isSpan)
 {
-	int newRowCnt = rowCount() + 1;
-	setRowCount(newRowCnt);
-	m_rowSpanMap.insert(newRowCnt, 1);
+	if (!isSpan)
+	{
+		// 末尾添加空行
+		int newRowCnt = rowCount() + 1;
+		//++m_rowCnt;
+		setRowCount(newRowCnt);
+		//m_rowSpanMap.insert(newRowCnt - 1, 1);
+		return (newRowCnt - 1);
+	}
+	else
+	{
+		int newRowCnt = this->currentRow() + 1;
+		int curSpan = rowSpan(this->currentRow(), wordCol);
+		insertRow(newRowCnt);
+		//++m_rowSpanMap[this->currentRow()];
+		this->setSpan(currentRow(), wordCol, curSpan + 1, 1);
+	}
+		//m_rowSpanMap
 	//CellBtn* btn = new CellBtn(newRowCnt - 1);
 	//btn->setText("显示");
 	//connect(btn, &CellBtn::clicked, this, &WordTableWidget::ShowSentence);
 	//setCellWidget(newRowCnt - 1, senetenceCol, btn);
 	//m_cellBtnList.push_back(btn);
-	return (newRowCnt - 1);
 }
 
 bool WordTableWidget::CheckRowEmpty(int row)
@@ -50,6 +65,12 @@ bool WordTableWidget::CheckRowEmpty(int row)
 	return (item(row, wordCol) == nullptr)
 		&& (item(row, transCol) == nullptr)
 		&& (item(row, rootCol) == nullptr);
+}
+
+bool WordTableWidget::CheckIsLastRow(int row)
+{
+	
+	return false;
 }
 
 WordTableWidget::~WordTableWidget()
@@ -100,32 +121,38 @@ QList<WordModel> WordTableWidget::Pack()
 
 bool WordTableWidget::eventFilter(QObject* obj, QEvent* event) {
 	if (event->type() == QEvent::KeyPress) {
+		qDebug() << "keyPressed" << obj->objectName();
 		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 		// 处理按键事件
-		qDebug() << "keypress";
 		keyPressEvent(keyEvent);
 		return true; // 返回true表示事件已被处理，不再传播
 	}
-	return false; // 返回false继续事件传播
+	return QTableWidget::eventFilter(obj, event); // 返回false继续事件传播
 }
 
 void WordTableWidget::keyPressEvent(QKeyEvent* event)
 {
 	// 监测delete键
+	qDebug() << "keyPressEvent";
 	if (event->key() == Qt::Key_Delete)
 	{
-		qDebug() << "delete";
 		QList<QTableWidgetItem*> items = selectedItems();
-		if (items.isEmpty())
-			return;
-		int row = items.at(0)->row();
+		int row = currentRow();
 		// 删除行
 		removeRow(row);
 		// 删除例句
 		if (row < m_sentenceList.size())
 			m_sentenceList.removeAt(row);
 	}
-	QTableWidget::keyPressEvent(event);
+	else if (event->key() == Qt::Key_Insert)
+	{
+		AppendRow();
+		event->ignore();
+	}
+	else
+	{
+		QTableWidget::keyPressEvent(event);
+	}
 }
 
 void WordTableWidget::mousePressEvent(QMouseEvent* event)
@@ -141,7 +168,6 @@ void WordTableWidget::ShowSentence()
 	int row = btn->GetRow();
 	if (!CheckInvalid(row, m_sentenceList.size()))
 	{
-		qDebug() << "ShowSentence " << btn->GetRow() << m_sentenceList.at(row);
 		QMessageBox::information(this, "例句", m_sentenceList.at(row));
 	}
 }
@@ -154,7 +180,6 @@ void WordTableWidget::onCellClicked(int row, int col)
         QRect rect = visualRect(index);
 		QPoint newPos(rect.topRight().x() + 5, rect.y() + m_addBtn->height() * 2);
 		m_addBtn->move(newPos);
-		qDebug() << rect << newPos << m_addBtn->pos();
 		m_addBtn->show();
 	}
 	else
@@ -167,9 +192,8 @@ void WordTableWidget::onAddBtnClicked()
 {
 	// 获取当前行
 	int row = currentRow();
-	qDebug() << "onAddBtnClicked " << row;
-	insertRow(row + 1);
-	setSpan(row, wordCol, 2, 1);
+	AppendRow(true);
+	//insertRow(row + 1);
 }
 
 bool WordTableWidget::CheckInvalid(int i, int top, int bottom)
