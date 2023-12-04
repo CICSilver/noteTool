@@ -5,29 +5,43 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QPushButton>
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
+	m_addBtn = new QPushButton("+", this);
+	m_addBtn->setToolTip("添加释义");
+	m_addBtn->setGeometry(0, 0, 16, 16);
+	m_addBtn->setContentsMargins(QMargins(0, 0, 0, 0));
+	// 设置背景色半透明
+	m_addBtn->setStyleSheet("background-color: rgba(255, 255, 255, 0.5);");
+	m_addBtn->hide();
 	setColumnCount(m_col_count);
 	setFocusPolicy(Qt::NoFocus);
 	horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	setHorizontalHeaderLabels(QStringList() << "生词" << "释义" << "词根" << "例句");
 	AppendRow();
+	// 最后一行写入后增加新行
 	connect(this, &WordTableWidget::itemChanged, this, [this](QTableWidgetItem *item)
 		{
 			if (!item->text().isEmpty() && item->row() == this->rowCount() - 1)
 				AppendRow();
 		});
+
+	connect(this, &WordTableWidget::cellClicked, this, &WordTableWidget::onCellClicked);
+	connect(m_addBtn, &QPushButton::clicked, this, &WordTableWidget::onAddBtnClicked);
 }
 
 int WordTableWidget::AppendRow()
 {
 	int newRowCnt = rowCount() + 1;
 	setRowCount(newRowCnt);
-	CellBtn* btn = new CellBtn(newRowCnt - 1);
-	btn->setText("显示");
-	connect(btn, &CellBtn::clicked, this, &WordTableWidget::ShowSentence);
-	setCellWidget(newRowCnt - 1, senetenceCol, btn);
+	m_rowSpanMap.insert(newRowCnt, 1);
+	//CellBtn* btn = new CellBtn(newRowCnt - 1);
+	//btn->setText("显示");
+	//connect(btn, &CellBtn::clicked, this, &WordTableWidget::ShowSentence);
+	//setCellWidget(newRowCnt - 1, senetenceCol, btn);
+	//m_cellBtnList.push_back(btn);
 	return (newRowCnt - 1);
 }
 
@@ -117,6 +131,7 @@ void WordTableWidget::keyPressEvent(QKeyEvent* event)
 void WordTableWidget::mousePressEvent(QMouseEvent* event)
 {
 	emit TableClicked();
+	m_addBtn->hide();
 	QTableWidget::mousePressEvent(event);
 }
 
@@ -129,7 +144,33 @@ void WordTableWidget::ShowSentence()
 		qDebug() << "ShowSentence " << btn->GetRow() << m_sentenceList.at(row);
 		QMessageBox::information(this, "例句", m_sentenceList.at(row));
 	}
-};
+}
+void WordTableWidget::onCellClicked(int row, int col)
+{
+	// 仅点击第一列时触发
+	if (col == wordCol)
+	{
+        QModelIndex index = model()->index(row, col);
+        QRect rect = visualRect(index);
+		QPoint newPos(rect.topRight().x() + 5, rect.y() + m_addBtn->height() * 2);
+		m_addBtn->move(newPos);
+		qDebug() << rect << newPos << m_addBtn->pos();
+		m_addBtn->show();
+	}
+	else
+	{
+		m_addBtn->hide();
+	}
+}
+
+void WordTableWidget::onAddBtnClicked()
+{
+	// 获取当前行
+	int row = currentRow();
+	qDebug() << "onAddBtnClicked " << row;
+	insertRow(row + 1);
+	setSpan(row, wordCol, 2, 1);
+}
 
 bool WordTableWidget::CheckInvalid(int i, int top, int bottom)
 {

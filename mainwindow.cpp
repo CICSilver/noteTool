@@ -8,14 +8,18 @@
 #include <QDateTime>
 #include <iostream>
 #include <QMouseEvent>
+#include <QSystemTrayIcon>
 #include "SqlHelper.h"
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 	helper = SqlHelper::Instance();
+	m_trayIcon = new QSystemTrayIcon(this);
+	m_trayIcon->setIcon(QIcon(":/MainWIndow/resources/ico/tray_icon.png"));
 	InitLayout();
 	InitTable();
+	m_trayIcon->show();
 #ifdef _DEBUG
 	//WordModel word;
 	//word.SetWord("abadon");
@@ -23,9 +27,18 @@ MainWindow::MainWindow(QWidget* parent)
 	//word.SetRoot("don");
 	//ui.wordTable->AppendWordRecord(word);
 #endif
-	//connect(ui.wordTable, &QTableWidget::itemChanged, this, &MainWindow::OnLastRowWrited);
-	//connect(ui.wordTable, &QTableWidget::cellClicked, this, &MainWindow::onCellClicked);
 	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
+	// 系统托盘
+	connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason)
+		{
+			if (reason == QSystemTrayIcon::Trigger)
+			{
+				// 还原窗口设置
+				this->setWindowState(Qt::WindowActive);
+				this->showNormal();
+			}
+		});
+	// 清除输入框焦点
 	connect(ui.wordTable, &WordTableWidget::TableClicked, this, [this]()
 		{
 			ui.lineEdit->clearFocus();
@@ -99,6 +112,21 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
 		ui.lineEdit->clearFocus();
 	}
 	QMainWindow::mousePressEvent(event);
+}
+
+void MainWindow::changeEvent(QEvent* event)
+{
+	if(event->type() == QEvent::WindowStateChange)
+	{
+		if(this->windowState() & Qt::WindowMinimized)
+		{
+			qDebug() << "MainWindow::changeEvent";
+			this->hide();
+			m_trayIcon->show();
+			qDebug() << m_trayIcon->isVisible();
+			event->ignore();
+		}
+	}
 }
 
 void MainWindow::onOpenActionTriggered(bool checked)

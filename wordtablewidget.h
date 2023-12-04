@@ -3,6 +3,8 @@
 #include <QTableWidget>
 #include "wordModel.h"
 
+class QPushButton;
+class CellBtn;
 class WordTableWidget : public QTableWidget
 {
 	Q_OBJECT
@@ -51,6 +53,10 @@ signals:
 
 protected slots:
 	void ShowSentence();
+
+private slots:
+	void onCellClicked(int row, int col);
+	void onAddBtnClicked();
 private:
 	// check if i is not in [bottom, top)
 	bool CheckInvalid(int i, int top, int bottom = 0);
@@ -68,4 +74,7 @@ private:
 private:
 	const int m_col_count = 4;
 	QList<QString> m_sentenceList;
+	QList<CellBtn*> m_cellBtnList;
+	QPushButton* m_addBtn;
+	QMap<int, int> m_rowSpanMap;	// 记录每行的单元格合并数
 };

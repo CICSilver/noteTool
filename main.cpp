@@ -1,10 +1,10 @@
 ﻿#include "mainwindow.h"
 #include <QtWidgets/QApplication>
 #include <qtextcodec.h>
-#ifdef _DEBUG
-#include <Windows.h>
 #include "datamodel.h"
 #include "SqlHelper.h"
+#ifdef _DEBUG
+#include <Windows.h>
 #include <QMetaObject>
 #include <QDebug>
 #endif // _DEBUG

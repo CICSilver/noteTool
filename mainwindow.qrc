@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="MainWIndow">
+    <qresource prefix="/MainWIndow">
+        <file>resources/ico/tray_icon.png</file>
     </qresource>
 </RCC>

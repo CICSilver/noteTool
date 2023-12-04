@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include "ui_mainwindow.h"
 #include "datamodel.h"
+class QSystemTrayIcon;
 class CellBtn;
 class SqlHelper;
 class MainWindow : public QMainWindow
@@ -19,7 +20,7 @@ public:
 	void Save();
 
 	void mousePressEvent(QMouseEvent *event) override;
-
+	void changeEvent(QEvent *event) override;
 protected slots:
 	void OnShowSentence();
 	void onOpenActionTriggered(bool checked);
@@ -28,5 +29,6 @@ private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
 	SqlHelper* helper;
+	QSystemTrayIcon *m_trayIcon;
 
 };
