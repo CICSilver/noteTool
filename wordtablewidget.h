@@ -13,9 +13,10 @@ public:
 	enum Col
 	{
 		wordCol = 0,
-		transCol = 1,
-		rootCol = 2,
-		senetenceCol = 3
+		transZhCol,
+		transEnCol,
+		rootCol,
+		senetenceCol
 	};
 public:
 	WordTableWidget(QWidget* parent = nullptr);
@@ -86,5 +87,5 @@ private:
 	QList<QString> m_sentenceList;
 	QList<CellBtn*> m_cellBtnList;
 	QPushButton* m_addBtn;
-	int m_rowCnt;
+	int m_lastRow;
 };

@@ -21,6 +21,15 @@ public:
 
 	void mousePressEvent(QMouseEvent *event) override;
 	void changeEvent(QEvent *event) override;
+
+	// "yyyy-MM-dd"
+	QList<WordModel> GetWordListByDate(QString curDate);
+
+	MainWindow& operator<<(int i)
+	{
+		qDebug() << i;
+		return *this;
+	}
 protected slots:
 	void OnShowSentence();
 	void onOpenActionTriggered(bool checked);

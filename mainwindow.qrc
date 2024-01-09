@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/MainWIndow">
         <file>resources/ico/tray_icon.png</file>
+        <file>ui/noteTool.qss</file>
     </qresource>
 </RCC>

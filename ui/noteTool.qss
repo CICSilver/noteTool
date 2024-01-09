@@ -1,0 +1,4 @@
+QTableWidget:
+{
+    backgrond-color:grey
+};

@@ -9,7 +9,7 @@
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
-	//m_rowCnt = 0;
+	m_lastRow = -1;
 	m_addBtn = new QPushButton("+", this);
 	m_addBtn->setToolTip("添加释义");
 	m_addBtn->setGeometry(0, 0, 16, 16);
@@ -17,15 +17,18 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	// 设置背景色半透明
 	m_addBtn->setStyleSheet("background-color: rgba(255, 255, 255, 0.5);");
 	m_addBtn->hide();
+	// 设置隔行变色
+	setAlternatingRowColors(true); // 隔行变色
+	setPalette(QPalette(Qt::gray)); // 设置隔行变色的颜色  gray灰色
 	setColumnCount(m_col_count);
 	setFocusPolicy(Qt::NoFocus);
 	horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	setHorizontalHeaderLabels(QStringList() << "生词" << "释义" << "词根" << "例句");
+	setHorizontalHeaderLabels(QStringList() << "生词" << "中文释义" << "英文释义" << "词根" << "例句");
 	AppendRow();
 	// 最后一行写入后增加新行
 	connect(this, &WordTableWidget::itemChanged, this, [this](QTableWidgetItem *item)
 		{
-			if (!item->text().isEmpty() && item->row() == this->rowCount() - 1)
+			if (!item->text().isEmpty() && item->row() == m_lastRow)
 				AppendRow();
 		});
 
@@ -39,31 +42,27 @@ int WordTableWidget::AppendRow(bool isSpan)
 	{
 		// 末尾添加空行
 		int newRowCnt = rowCount() + 1;
-		//++m_rowCnt;
+		m_lastRow = newRowCnt - 1;
 		setRowCount(newRowCnt);
 		//m_rowSpanMap.insert(newRowCnt - 1, 1);
 		return (newRowCnt - 1);
 	}
 	else
 	{
+		++m_lastRow;
 		int newRowCnt = this->currentRow() + 1;
 		int curSpan = rowSpan(this->currentRow(), wordCol);
 		insertRow(newRowCnt);
-		//++m_rowSpanMap[this->currentRow()];
 		this->setSpan(currentRow(), wordCol, curSpan + 1, 1);
+		return this->currentRow();
 	}
-		//m_rowSpanMap
-	//CellBtn* btn = new CellBtn(newRowCnt - 1);
-	//btn->setText("显示");
-	//connect(btn, &CellBtn::clicked, this, &WordTableWidget::ShowSentence);
-	//setCellWidget(newRowCnt - 1, senetenceCol, btn);
-	//m_cellBtnList.push_back(btn);
 }
 
 bool WordTableWidget::CheckRowEmpty(int row)
 {
 	return (item(row, wordCol) == nullptr)
-		&& (item(row, transCol) == nullptr)
+		&& (item(row, transZhCol) == nullptr)
+		&&(item(row, transEnCol) == nullptr)
 		&& (item(row, rootCol) == nullptr);
 }
 
@@ -82,13 +81,15 @@ void WordTableWidget::AppendWordRecord(const WordModel word)
 		return;
 	// 若最后一行为空，则在最后一行添加;否则额外增加一行
 	int row = CheckRowEmpty(rowCount() - 1) ? rowCount() - 1 : AppendRow();
+	qDebug() << row;
 	this->setItem(row, wordCol, new QTableWidgetItem(word.GetWord()));
-	this->setItem(row, transCol, new QTableWidgetItem(word.GetTranslation()));
-	this->setItem(row, rootCol, new QTableWidgetItem(word.GetRoot()));
-	if (row > m_sentenceList.length())
-		m_sentenceList.append(word.GetSentence());
-	else
-		m_sentenceList.insert(row, word.GetSentence());
+	//this->setItem(row, transZhCol, new QTableWidgetItem(word.Get))
+	//this->setItem(row, transZhCol, new QTableWidgetItem(word.GetTranslation()));
+	//this->setItem(row, rootCol, new QTableWidgetItem(word.GetRoot()));
+	//if (row > m_sentenceList.length())
+	//	m_sentenceList.append(word.GetSentence());
+	//else
+	//	m_sentenceList.insert(row, word.GetSentence());
 }
 
 WordModel WordTableWidget::GetWordRecord(int row)
@@ -98,12 +99,12 @@ WordModel WordTableWidget::GetWordRecord(int row)
 	WordModel word;
 	if(item(row, wordCol))
 		word.SetWord(item(row, wordCol)->text());
-	if(item(row, transCol))
-		word.SetTranslation(item(row, transCol)->text());
-	if(item(row, rootCol))
-		word.SetRoot(item(row, rootCol)->text());
-	if(row < m_sentenceList.size())
-		word.SetSentence(m_sentenceList.at(row));
+	//if(item(row, transCol))
+	//	word.SetTranslation(item(row, transCol)->text());
+	//if(item(row, rootCol))
+	//	word.SetRoot(item(row, rootCol)->text());
+	//if(row < m_sentenceList.size())
+	//	word.SetSentence(m_sentenceList.at(row));
 	return word;
 }
 
@@ -192,6 +193,7 @@ void WordTableWidget::onAddBtnClicked()
 {
 	// 获取当前行
 	int row = currentRow();
+	
 	AppendRow(true);
 	//insertRow(row + 1);
 }
