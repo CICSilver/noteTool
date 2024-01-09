@@ -6,33 +6,12 @@
 #include <QMetaProperty>
 #include <QDir>
 #include <QDebug>
-#include "DataModel.h"
+#include "dbDefines.h"
 
 #define default_dbName "noteTool.db"
 #define default_connName "note_database_conn"
 #define default_username "xyr"
 #define default_passwd "123456"
-
-namespace tableName
-{
-	const QString Word = "Word";
-	const QString Data = "Data";
-}
-
-namespace table_word
-{
-	const QString data_id = "data_id";
-	const QString word = "word";
-	const QString translation = "translation";
-	const QString root = "root";
-	const QString sentence = "sentence";
-}
-
-namespace table_data
-{
-	const QString id = "id";
-	const QString date = "date";
-}
 
 class SqlHelper
 {
@@ -45,9 +24,6 @@ public:
 	void RunSqlScript(QString scriptPath = "init.sql", QString connName = default_connName);
 	// 处理数据库的重复插入错误
 	void DepulicateError() {};
-
-	QList<DataModel> GetDataRecords(QString connName = default_connName);
-	QList<WordModel> GetWordRecords(int data_id = -1, QString connName = default_connName);
 
 	/// <summary>
 	/// 初始化数据库的表结构
@@ -72,7 +48,7 @@ public:
 		return Execute(sql, connName);
 	}
 
-	void Close(QString connName = default_connName)
+	void CloseDB(QString connName = default_connName)
 	{
 		QSqlDatabase db = QSqlDatabase::database(connName);
 		db.close();

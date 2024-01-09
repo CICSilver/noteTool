@@ -1,7 +1,8 @@
 #pragma once
 #include <qstring.h>
 #include <QObject>
-#include "wordModel.h"
+#include <QVariant>
+#include <QSqlQuery>
 // 每日记录单词数据模型
 // 包含日期、单词模型列表
 class DataModel : public QObject
@@ -16,6 +17,11 @@ public:
 	{
 		m_id = -1;
 	};
+	DataModel(const QSqlQuery& query)
+	{
+		m_id = query.value("id").toInt();
+		m_date = query.value("date").toString();
+	}
 	~DataModel() {};
 	DataModel(const DataModel& other)
 		: m_id(other.m_id),

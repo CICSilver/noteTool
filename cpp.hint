@@ -5,3 +5,5 @@
 #define Q_OBJECT
 #define default_connName
 #define slots
+#define Q_PROPERTY(__VA_ARGS__) QT_ANNOTATE_CLASS(qt_property, __VA_ARGS__)
+#define Q_PROPERTY(text) Q_PROPERTY(text)

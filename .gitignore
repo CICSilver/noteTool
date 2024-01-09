@@ -368,3 +368,6 @@ FodyWeavers.xsd
 # User-specific files
 temp/
 .vscode/
+/libcrypto-1_1-x64.dll
+/libssl-1_1-x64.dll
+/test
