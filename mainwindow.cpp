@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QMouseEvent>
 #include <QSystemTrayIcon>
+#include <QShortcut>
 #include "SqlHelper.h"
 #include "model/translationModel.h"
 using namespace dbtable;
@@ -29,6 +30,11 @@ MainWindow::MainWindow(QWidget* parent)
 	//word.SetRoot("don");
 	//ui.wordTable->AppendWordRecord(word);
 #endif
+	// 绑定搜索快捷键
+	QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+S"), this);
+	connect(shortcut, &QShortcut::activated, this, [&]() {
+		qDebug() << "Search word";
+	});
 	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
 	// 系统托盘
 	connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason)
@@ -65,7 +71,10 @@ void MainWindow::InitTable()
 	// 从数据库查找当天内容，若找到则写入
 	// 先通过日期筛选当日单词和释义
 	// 再根据释义关联的单词id添加
-	QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	// 
+	//QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	// DBG
+	QString curDate = "2024-01-04";
 	QList<WordModel> wordList = GetWordListByDate(curDate);
 }
 
@@ -140,12 +149,12 @@ QList<WordModel> MainWindow::GetWordListByDate(QString curDate)
 			}
 			model.SetWord(wordQuery.value(dbtable::word::word).toString());
 
-
+			qDebug() << "find word by date: " << model.GetWord();
 			// 根据获取到的单词插入记录
 			ui.wordTable->AppendWordRecord(model);
 		}
 	}
-	helper->CloseDB();
+	//helper->CloseDB();
 	return wordList;
 }
 

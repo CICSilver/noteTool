@@ -1,4 +1,5 @@
-#include "wordtablewidget.h"
+﻿#include "wordtablewidget.h"
+#include "TranslationDao.h"
 #include "cellbtn.h"
 #include <QHeaderView>
 #include <QDebug>
@@ -81,7 +82,10 @@ void WordTableWidget::AppendWordRecord(const WordModel word)
 		return;
 	// 若最后一行为空，则在最后一行添加;否则额外增加一行
 	int row = CheckRowEmpty(rowCount() - 1) ? rowCount() - 1 : AppendRow();
-	qDebug() << row;
+	dao::TranslationDao* transDao = dao::TranslationDao::Instance();
+	qDebug() << word.GetId();
+	//transDao->GetTranslationDaoByWordId(word.GetId());
+	//qDebug() << row;
 	this->setItem(row, wordCol, new QTableWidgetItem(word.GetWord()));
 	//this->setItem(row, transZhCol, new QTableWidgetItem(word.Get))
 	//this->setItem(row, transZhCol, new QTableWidgetItem(word.GetTranslation()));

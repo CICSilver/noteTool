@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include <QtWidgets/QApplication>
 #include <qtextcodec.h>
 #include "datamodel.h"
@@ -7,6 +7,9 @@
 #include <Windows.h>
 #include <QMetaObject>
 #include <QDebug>
+#include <iostream>
+#include "WordDao.h"
+#include "SearchApi.h"
 #endif // _DEBUG
 
 #include <qdebug.h>
@@ -17,16 +20,14 @@ int main(int argc, char* argv[])
 	// 初始化数据库
 	auto helper = SqlHelper::Instance();
 	helper->Init();
-	//DataModel dataModel;
-	//dataModel.SetDate("2020-1-1");
-	////dataModel.SetId()
-	//helper->Insert<DataModel>("Data", dataModel);
+	qDebug() << QSslSocket::supportsSsl() << QSslSocket::sslLibraryBuildVersionString();
 #ifdef _DEBUG
 	SetConsoleOutputCP(CP_UTF8);
 #endif // _DEBUG
-
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
+	//SearchApi* api = SearchApi::Instance();
+	//api->FetchWord("spare");
 	return a.exec();
 }
