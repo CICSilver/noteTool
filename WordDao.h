@@ -12,7 +12,7 @@ namespace dao
 			return &instance;
 		}
 		QList<WordModel> GetAllWord();
-		WordModel GetWordModelByDataId(int data_id);
+		QList<WordModel> GetWordModelByDataId(int data_id);
 		WordModel GetWordModelById(int id);
 
 	private:

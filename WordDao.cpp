@@ -14,16 +14,16 @@ QList<WordModel> dao::WordDao::GetAllWord()
 	return wordList;
 }
 
-WordModel dao::WordDao::GetWordModelByDataId(int data_id)
+QList<WordModel> dao::WordDao::GetWordModelByDataId(int data_id)
 {
-	WordModel model;
+	QList<WordModel> modelList;
 	QSqlQuery query = helper->Where(dbtable::word::tableName, QString("data_id=%1").arg(data_id));
 	while(query.next())
 	{
-		model.SetWord(query.value(dbtable::word::word).toString());
-		model.SetDataId(query.value(dbtable::word::data_id).toInt());
+		WordModel model(query);
+		modelList.append(model);
 	}
-	return model;
+	return modelList;
 }
 
 WordModel dao::WordDao::GetWordModelById(int id)

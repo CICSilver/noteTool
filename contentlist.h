@@ -13,6 +13,7 @@ public:
 
 	// 从数据库更新单词列表
 	void Update();
+
 private:
 	SqlHelper* helper;
 };

@@ -7,9 +7,9 @@
 class WordModel : public QObject
 {
 	Q_OBJECT
-		Q_PROPERTY(QString word MEMBER m_word READ GetWord WRITE SetWord)
-		Q_PROPERTY(int data_id MEMBER m_data_id READ GetDataId WRITE SetDataId)
 		Q_PROPERTY(int id MEMBER m_id READ GetId)
+		Q_PROPERTY(int data_id MEMBER m_data_id READ GetDataId WRITE SetDataId)
+		Q_PROPERTY(QString word MEMBER m_word READ GetWord WRITE SetWord)
 public:
 	WordModel(QObject* parent = nullptr) : QObject(parent)
 	{
@@ -28,6 +28,13 @@ public:
 		m_data_id(other.m_data_id),
 		m_id(other.m_id)
 	{}
+	WordModel& operator= (const WordModel& other)
+	{
+		this->m_word = other.m_word;
+		this->m_data_id = other.m_data_id;
+		this->m_id = other.m_id;
+		return *this;
+	}
 
 	// Getters and setters
 	QString GetWord() const { return m_word; };

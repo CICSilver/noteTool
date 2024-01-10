@@ -2,6 +2,7 @@
 #include "SqlHelper.h"
 #include "datamodel.h"
 #include "WordDao.h"
+#include "DataDao.h"
 ContentList::ContentList(QWidget *parent)
 	: QListWidget(parent)
 {
@@ -16,9 +17,10 @@ ContentList::~ContentList()
 void ContentList::Update()
 {
 	clear();
-	QList<WordModel> wordList = dao::WordDao::Instance()->GetAllWord();
-	for (WordModel const& word : wordList)
+	auto dataDao = dao::DataDao::Instance();
+	auto list = dataDao->GetAllData();
+	for(auto const& dataModel : list)
 	{
-		this->addItem(new QListWidgetItem(word.GetWord()));
+		this->addItem(new QListWidgetItem(dataModel.GetDate()));
 	}
 }

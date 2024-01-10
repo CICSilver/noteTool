@@ -29,7 +29,8 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	// 最后一行写入后增加新行
 	connect(this, &WordTableWidget::itemChanged, this, [this](QTableWidgetItem *item)
 		{
-			if (!item->text().isEmpty() && item->row() == m_lastRow)
+			int realRow = this->rowSpan(item->row(), item->column()) + item->row() - 1;
+			if (!item->text().isEmpty() && realRow == m_lastRow)
 				AppendRow();
 		});
 
@@ -37,7 +38,7 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	connect(m_addBtn, &QPushButton::clicked, this, &WordTableWidget::onAddBtnClicked);
 }
 
-int WordTableWidget::AppendRow(bool isSpan)
+int WordTableWidget::AppendRow(int row, bool isSpan)
 {
 	if (!isSpan)
 	{
@@ -51,17 +52,18 @@ int WordTableWidget::AppendRow(bool isSpan)
 	else
 	{
 		++m_lastRow;
-		int newRowCnt = this->currentRow() + 1;
-		int curSpan = rowSpan(this->currentRow(), wordCol);
+		int curRow = row >= 0 ? row : this->currentRow();
+		int newRowCnt = curRow + 1;
+		int curSpan = rowSpan(curRow, wordCol);
 		insertRow(newRowCnt);
-		this->setSpan(currentRow(), wordCol, curSpan + 1, 1);
-		return this->currentRow();
+		this->setSpan(curRow, wordCol, curSpan + 1, 1);
+		return curRow;
 	}
 }
 
 bool WordTableWidget::CheckRowEmpty(int row)
 {
-	return (item(row, wordCol) == nullptr)
+	return (item(row, wordCol) == nullptr || item(row, wordCol)->text().isEmpty())
 		&& (item(row, transZhCol) == nullptr)
 		&&(item(row, transEnCol) == nullptr)
 		&& (item(row, rootCol) == nullptr);
@@ -76,17 +78,25 @@ bool WordTableWidget::CheckIsLastRow(int row)
 WordTableWidget::~WordTableWidget()
 {}
 
-void WordTableWidget::AppendWordRecord(const WordModel word)
+void WordTableWidget::AppendWordRecord(const WordRecord record)
 {
-	if (word.isEmpty())
+	if (record.word.isEmpty())
 		return;
 	// 若最后一行为空，则在最后一行添加;否则额外增加一行
 	int row = CheckRowEmpty(rowCount() - 1) ? rowCount() - 1 : AppendRow();
 	dao::TranslationDao* transDao = dao::TranslationDao::Instance();
-	qDebug() << word.GetId();
-	//transDao->GetTranslationDaoByWordId(word.GetId());
-	//qDebug() << row;
-	this->setItem(row, wordCol, new QTableWidgetItem(word.GetWord()));
+
+	this->setItem(row, wordCol, new QTableWidgetItem(record.word.GetWord()));
+	for (int i = 0; i < record.transList.size(); ++i)
+	{
+		int curRow = row + i;
+		this->setItem(curRow, transZhCol, new QTableWidgetItem(record.transList[i].GetZhTranslation()));
+		this->setItem(curRow, transEnCol, new QTableWidgetItem(record.transList[i].GetEnTranslation()));
+		this->setItem(curRow, rootCol, new QTableWidgetItem(record.transList[i].GetRoot()));
+		this->setItem(curRow, senetenceCol, new QTableWidgetItem(record.transList[i].GetSentence()));
+		// 非最后一个，则继续增加合并行
+		if(i != record.transList.size() - 1) AppendRow(curRow - rowSpan(curRow, wordCol) + 1, true);
+	}
 	//this->setItem(row, transZhCol, new QTableWidgetItem(word.Get))
 	//this->setItem(row, transZhCol, new QTableWidgetItem(word.GetTranslation()));
 	//this->setItem(row, rootCol, new QTableWidgetItem(word.GetRoot()));
@@ -96,37 +106,49 @@ void WordTableWidget::AppendWordRecord(const WordModel word)
 	//	m_sentenceList.insert(row, word.GetSentence());
 }
 
-WordModel WordTableWidget::GetWordRecord(int row)
+WordRecord WordTableWidget::GetWordRecord(int row)
 {
+	WordRecord record;
 	if (CheckInvalid(row, rowCount()))
-		return NULL;
-	WordModel word;
+		return record;
 	if(item(row, wordCol))
-		word.SetWord(item(row, wordCol)->text());
-	//if(item(row, transCol))
-	//	word.SetTranslation(item(row, transCol)->text());
-	//if(item(row, rootCol))
-	//	word.SetRoot(item(row, rootCol)->text());
-	//if(row < m_sentenceList.size())
-	//	word.SetSentence(m_sentenceList.at(row));
-	return word;
+		record.word.SetWord(item(row, wordCol)->text());
+	int spanCnt = this->rowSpan(row, wordCol);
+	// translation count > 1
+	for (int i = 0; i < spanCnt; ++i)
+	{
+		int curRow = row + i;
+		TranslationModel trans;
+		if(item(curRow, transZhCol))
+			trans.SetZhTranslation(item(curRow, transZhCol)->text());
+		if (item(curRow, transEnCol))
+			trans.SetEnTranslation(item(curRow, transEnCol)->text());
+		if (item(curRow, senetenceCol))
+			trans.SetSentence(item(curRow, senetenceCol)->text());
+		if (item(curRow, rootCol))
+			trans.SetRoot(item(curRow, rootCol)->text());
+		trans.SetSubId(i);
+		record.transList.append(trans);
+	}
+	return record;
 }
 
-QList<WordModel> WordTableWidget::Pack()
+QList<WordRecord> WordTableWidget::Pack()
 {
-	QList<WordModel> wordList;
-	for (size_t row = 0; row < rowCount(); row++)
+	QList<WordRecord> recordList;
+	int row = this->currentRow();
+	for (size_t row = 0; row < rowCount(); )
 	{
-		WordModel word = GetWordRecord(row);
-		if (!word.isEmpty())
-			wordList.push_back(word);
+		WordRecord record = GetWordRecord(row);
+		if (!record.word.isEmpty())
+			recordList.push_back(record);
+		row += rowSpan(row, wordCol);
 	}
-	return wordList;
+	return recordList;
 }
 
 bool WordTableWidget::eventFilter(QObject* obj, QEvent* event) {
 	if (event->type() == QEvent::KeyPress) {
-		qDebug() << "keyPressed" << obj->objectName();
 		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 		// 处理按键事件
 		keyPressEvent(keyEvent);
@@ -138,7 +160,6 @@ bool WordTableWidget::eventFilter(QObject* obj, QEvent* event) {
 void WordTableWidget::keyPressEvent(QKeyEvent* event)
 {
 	// 监测delete键
-	qDebug() << "keyPressEvent";
 	if (event->key() == Qt::Key_Delete)
 	{
 		QList<QTableWidgetItem*> items = selectedItems();

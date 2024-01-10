@@ -26,3 +26,15 @@ DataModel dao::DataDao::GetDataModelById(int id)
 	helper->CloseDB();
 	return model;
 }
+
+DataModel dao::DataDao::GetDataModelByDate(QString date)
+{
+	DataModel model;
+	QSqlQuery query = helper->Where(dbtable::data::tableName, dbtable::data::date + "='" + date + "'");
+	while (query.next())
+	{
+		model.SetId(query.value(dbtable::data::id).toInt());
+		model.SetDate(query.value(dbtable::data::date).toString());
+	}
+	return model;
+}

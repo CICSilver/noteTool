@@ -12,8 +12,11 @@ namespace dao
 			return &instance;
 		}
 		QList<TranslationModel> GetAllTranslation();
-		TranslationModel GetTranslationDaoByWordId(int word_id);
-		TranslationModel GetTranslationDaoById(int id);
+		QList<TranslationModel> GetTranslationModelByWordId(int word_id);
+		TranslationModel GetTranslationModelById(int id);
+
+		void UpdateWithId(int id, TranslationModel model);
+		int Exists(int word_id, int sub_id);
 
 	private:
 		TranslationDao()

@@ -127,6 +127,15 @@ inline void SqlHelper::Update(QString tableName, QString _where, T& model, QStri
 	{
 		QMetaProperty property = metaobject->property(i);
 		const char* name = property.name();
-
+		if (QString(name).toLower() == "id")
+		{
+			// 跳过自增id
+			continue;
+		}
+		QVariant value = model.property(name);
+		set += QString("%1='%2'").arg(name).arg(value.toString());
+		if (i != count - 1) set += ",";
 	}
+	sql = sql + set + where;
+	Execute(sql);
 }

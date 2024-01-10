@@ -19,6 +19,7 @@ namespace dbtable
 	{
 		const QString tableName = "Translation";
 		const QString word_id = "word_id";
+		const QString sub_id = "sub_id";
 		const QString id = "id";
 		const QString zhTranslation = "zh_translation";
 		const QString enTranslation = "en_translation";

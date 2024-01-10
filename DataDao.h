@@ -13,6 +13,7 @@ namespace dao
 		}
 		QList<DataModel> GetAllData();
 		DataModel GetDataModelById(int id);
+		DataModel GetDataModelByDate(QString date);
 
 	private:
 		DataDao()

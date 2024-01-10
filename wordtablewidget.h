@@ -1,7 +1,24 @@
 #pragma once
 
 #include <QTableWidget>
+#include <QList>
+#include "model/translationModel.h"
 #include "wordModel.h"
+
+struct WordRecord
+{
+	WordRecord()
+	{
+		word = WordModel();
+		transList = QList<TranslationModel>();
+	}
+	WordRecord(const WordModel word, const QList<TranslationModel> list)
+		: word(word), transList(list)
+	{
+	}
+	WordModel word;
+	QList<TranslationModel> transList;
+};
 
 class QPushButton;
 class CellBtn;
@@ -27,7 +44,7 @@ public:
 	 * @author xyr
 	 * @date 2023/11/30 14:04:19
 	 */
-	void AppendWordRecord(WordModel word);
+	void AppendWordRecord(const WordRecord record);
 
 	/*
 	 * @brief 打包指定行的word model
@@ -35,7 +52,7 @@ public:
 	 * @date 2023/11/30 15:09:10
 	 * @return WordModel 打包好的指定word model
 	 */
-	WordModel GetWordRecord(int row);
+	WordRecord GetWordRecord(int row);
 
 	/*
 	 * @brief 打包表格中的全部word
@@ -43,7 +60,7 @@ public:
 	 * @date 2023/11/30 15:09:28
 	 * @return QList<WordModel> word model list
 	 */
-	QList<WordModel> Pack();
+	QList<WordRecord> Pack();
 
 	bool eventFilter(QObject* obj, QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
@@ -62,7 +79,7 @@ private:
 	// check if i is not in [bottom, top)
 	bool CheckInvalid(int i, int top, int bottom = 0);
 	// 末尾添加空行，返回行号
-	int AppendRow(bool isSpan = false);
+	int AppendRow(int row = -1, bool isSpan = false);
 	/*
 	 * @brief 检查行是否为空
 	 * @author xyr

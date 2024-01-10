@@ -12,6 +12,9 @@
 #include <QShortcut>
 #include "SqlHelper.h"
 #include "model/translationModel.h"
+#include "WordDao.h"
+#include "DataDao.h"
+#include "TranslationDao.h"
 using namespace dbtable;
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
@@ -20,6 +23,10 @@ MainWindow::MainWindow(QWidget* parent)
 	helper = SqlHelper::Instance();
 	m_trayIcon = new QSystemTrayIcon(this);
 	m_trayIcon->setIcon(QIcon(":/MainWIndow/resources/ico/tray_icon.png"));
+	dataDao = dao::DataDao::Instance();
+	wordDao = dao::WordDao::Instance();
+	translationDao = dao::TranslationDao::Instance();
+
 	InitLayout();
 	InitTable();
 	m_trayIcon->show();
@@ -31,10 +38,9 @@ MainWindow::MainWindow(QWidget* parent)
 	//ui.wordTable->AppendWordRecord(word);
 #endif
 	// 绑定搜索快捷键
-	QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+S"), this);
-	connect(shortcut, &QShortcut::activated, this, [&]() {
-		qDebug() << "Search word";
-	});
+	BindShotCuts();
+
+	connect(ui.dateList, &ContentList::itemDoubleClicked, this, &MainWindow::onDateListItemDoubleClicked);
 	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
 	// 系统托盘
 	connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason)
@@ -72,16 +78,12 @@ void MainWindow::InitTable()
 	// 先通过日期筛选当日单词和释义
 	// 再根据释义关联的单词id添加
 	// 
-	//QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	// DBG
-	QString curDate = "2024-01-04";
-	QList<WordModel> wordList = GetWordListByDate(curDate);
+	QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	ShowWordsByDate(curDate);
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
 {
-	// 关闭时自动保存
-	Save();
 	QMainWindow::closeEvent(e);
 }
 
@@ -93,13 +95,44 @@ void MainWindow::Save()
 	QSqlQuery query = helper->Where(data::tableName, "1=1");
 	query.last();
 	int data_id = query.value(data::id).toInt();
-	qDebug() << data_id;
-	QList<WordModel> word_list = ui.wordTable->Pack();
-	for (WordModel& wordModel : word_list)
+	QList<WordRecord> recordList = ui.wordTable->Pack();
+	for (WordRecord& record : recordList)
 	{
-		wordModel.SetDataId(data_id);
-		helper->Insert<WordModel>(word::tableName, wordModel);
+		record.word.SetDataId(data_id);
+		helper->Insert<WordModel>(word::tableName, record.word);
+		query = helper->Where(word::tableName, QString("%1='%2'").arg(word::word).arg(record.word.GetWord()));
+		query.next();
+		int word_id = query.value(word::id).toInt();
+		for(auto& transModel: record.transList)
+		{
+			transModel.SetWordId(word_id);
+			int transId = translationDao->Exists(word_id, transModel.GetSubId());
+			if (transId != -1)
+			{
+				// 已存在，更新
+				translationDao->UpdateWithId(transId, transModel);
+			}
+			else
+			{
+				// 不存在，插入
+				helper->Insert<TranslationModel>(translation::tableName, transModel);
+			}
+		}
 	}
+}
+
+void MainWindow::BindShotCuts()
+{
+	QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
+	connect(shortcut, &QShortcut::activated, this, [&]()
+	{
+		qDebug() << "Search word";
+	});
+
+	connect(new QShortcut(QKeySequence("Ctrl+S"), this), &QShortcut::activated, this, [&]()
+	{
+		Save();
+	});
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event)
@@ -118,53 +151,31 @@ void MainWindow::changeEvent(QEvent* event)
 	{
 		if(this->windowState() & Qt::WindowMinimized)
 		{
-			qDebug() << "MainWindow::changeEvent";
 			this->hide();
 			m_trayIcon->show();
-			qDebug() << m_trayIcon->isVisible();
 			event->ignore();
 		}
 	}
 }
 
-QList<WordModel> MainWindow::GetWordListByDate(QString curDate)
+void MainWindow::ShowWordsByDate(QString curDate)
 {
-	QList<WordModel> wordList;
-	
-	QSqlQuery query = helper->Where(dbtable::data::tableName, dbtable::data::date + "='" + curDate + "'");
-	if (query.next())
+	ui.wordTable->clear();
+	int date_id = dataDao->GetDataModelByDate(curDate).GetId();
+	for(auto const& word: wordDao->GetWordModelByDataId(date_id))
 	{
-		QString data_id = query.value(dbtable::data::id).toString();
-		QSqlQuery wordQuery = helper->Where(dbtable::word::tableName, dbtable::word::data_id + "='" + data_id + "'");
-		while (wordQuery.next())
-		{
-			WordModel model;
-			QString whereTransSql = dbtable::translation::word_id + "='" + wordQuery.value(dbtable::word::id).toString() + "'";
-			QSqlQuery transQuery = helper->Where(dbtable::translation::tableName, whereTransSql);
-			// 翻译应该唯一,只取第一个查询结果
-			if (transQuery.next())
-			{
-				TranslationModel transModel;
-				transModel.SetWordId(transQuery.value(dbtable::translation::word_id).toInt());
-			}
-			model.SetWord(wordQuery.value(dbtable::word::word).toString());
-
-			qDebug() << "find word by date: " << model.GetWord();
-			// 根据获取到的单词插入记录
-			ui.wordTable->AppendWordRecord(model);
-		}
+		 QList<TranslationModel> transList = translationDao->GetTranslationModelByWordId(word.GetId());
+		 ui.wordTable->AppendWordRecord(WordRecord(word, transList));
 	}
-	//helper->CloseDB();
-	return wordList;
 }
 
 void MainWindow::onOpenActionTriggered(bool checked)
 {
 }
 
-void MainWindow::onCellClicked()
+void MainWindow::onDateListItemDoubleClicked(QListWidgetItem* item)
 {
-	qDebug() << "onCellClicked";
+	ShowWordsByDate(item->text());
 }
 
 void MainWindow::OnShowSentence()

@@ -4,6 +4,14 @@
 #include <QPushButton>
 #include "ui_mainwindow.h"
 #include "datamodel.h"
+
+namespace dao
+{
+	class WordDao;
+	class TranslationDao;
+	class DataDao;
+}
+
 class QSystemTrayIcon;
 class CellBtn;
 class SqlHelper;
@@ -18,12 +26,14 @@ public:
 	void InitTable();
 	void closeEvent(QCloseEvent* e) override;
 	void Save();
+	void BindShotCuts();
 
 	void mousePressEvent(QMouseEvent *event) override;
 	void changeEvent(QEvent *event) override;
 
+
 	// "yyyy-MM-dd"
-	QList<WordModel> GetWordListByDate(QString curDate);
+	void ShowWordsByDate(QString curDate);
 
 	MainWindow& operator<<(int i)
 	{
@@ -33,11 +43,14 @@ public:
 protected slots:
 	void OnShowSentence();
 	void onOpenActionTriggered(bool checked);
-	void onCellClicked();
+	void onDateListItemDoubleClicked(QListWidgetItem* item);
 private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
 	SqlHelper* helper;
+	dao::DataDao* dataDao;
+	dao::WordDao* wordDao;
+	dao::TranslationDao* translationDao;
 	QSystemTrayIcon *m_trayIcon;
 
 };
