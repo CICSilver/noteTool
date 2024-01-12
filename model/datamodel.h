@@ -26,6 +26,10 @@ public:
 	DataModel(const DataModel& other)
 		: m_id(other.m_id),
 		m_date(other.m_date) {}
+	bool isEmpty()
+	{
+		return m_id == -1 && m_date.isEmpty();
+	}
 	// getters and setters
 	int GetId() const { return m_id; }
 	void SetId(int id) { m_id = id; }

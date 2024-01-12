@@ -51,14 +51,20 @@ QSqlQuery SqlHelper::Execute(QString sql, QString connName)
 	{
 		qDebug() << "Insert failed. beacuse: " << db.lastError();
 	}
-
+	//打开外键支持
+	if(m_isForeignKeySupport)
+	{
+		if (!query.exec("PRAGMA foreign_keys = ON;")) {
+			qDebug() << "Error enabling foreign keys: " << query.lastError().text();
+		}
+	}
 	if (!query.exec(sql))
 	{
 		QString errMsg = query.lastError().text();
 		if (errMsg.contains("UNIQUE"))
 		{
 			// TODO: 处理重复插入错误
-			DepulicateError();
+			//DepulicateError();
 		}
 	}
 	return query;

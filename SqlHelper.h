@@ -53,9 +53,15 @@ public:
 		QSqlDatabase db = QSqlDatabase::database(connName);
 		db.close();
 	}
+
+	void SetForeignKeySupport(bool on = true,  QString connName = default_connName)
+	{
+		m_isForeignKeySupport = on;
+	}
 private:
 	SqlHelper()
 	{
+		m_isForeignKeySupport = false;
 		QString dbPath = "./data/";
 		QDir dir;
 		if (!dir.exists(dbPath))
@@ -76,6 +82,7 @@ private:
 	~SqlHelper() {}
 	QSqlQuery Execute(QString sql, QString connName = default_connName);
 	QList<QString> m_connName;
+	bool m_isForeignKeySupport;
 };
 
 template<typename T>

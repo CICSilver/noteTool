@@ -31,7 +31,6 @@ public:
 	void mousePressEvent(QMouseEvent *event) override;
 	void changeEvent(QEvent *event) override;
 
-
 	// "yyyy-MM-dd"
 	void ShowWordsByDate(QString curDate);
 
@@ -44,6 +43,7 @@ protected slots:
 	void OnShowSentence();
 	void onOpenActionTriggered(bool checked);
 	void onDateListItemDoubleClicked(QListWidgetItem* item);
+	void onDeleteDate();
 private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
@@ -52,5 +52,5 @@ private:
 	dao::WordDao* wordDao;
 	dao::TranslationDao* translationDao;
 	QSystemTrayIcon *m_trayIcon;
-
+	int m_curShowDateId;
 };

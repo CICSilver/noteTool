@@ -37,3 +37,9 @@ WordModel dao::WordDao::GetWordModelById(int id)
 	}
 	return model;
 }
+
+void dao::WordDao::DeleteByDataId(int data_id)
+{
+	helper->Delete(dbtable::word::tableName, QString("data_id=%1").arg(data_id));
+	//helper->CloseDB();
+}

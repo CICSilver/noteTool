@@ -38,3 +38,13 @@ DataModel dao::DataDao::GetDataModelByDate(QString date)
 	}
 	return model;
 }
+
+void dao::DataDao::DeleteByDate(QString date)
+{
+	helper->Delete(dbtable::data::tableName, dbtable::data::date + "='" + date + "'");
+}
+
+void dao::DataDao::DeleteById(int id)
+{
+	helper->Delete(dbtable::data::tableName, QString("%1=%2").arg(dbtable::data::id).arg(id));
+}

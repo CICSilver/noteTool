@@ -15,6 +15,9 @@ namespace dao
 		DataModel GetDataModelById(int id);
 		DataModel GetDataModelByDate(QString date);
 
+		void DeleteByDate(QString date);
+		void DeleteById(int id);
+
 	private:
 		DataDao()
 		{

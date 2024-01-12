@@ -34,6 +34,12 @@ TranslationModel dao::TranslationDao::GetTranslationModelById(int id)
 	return TranslationModel();
 }
 
+void dao::TranslationDao::DeleteByWordId(int word_id)
+{
+	QString where = QString("%1=%2").arg(dbtable::translation::word_id).arg(word_id);
+	helper->Delete(dbtable::translation::tableName, where);
+}
+
 void dao::TranslationDao::UpdateWithId(int id, TranslationModel model)
 {
 	QString where = QString("%1=%2").arg(dbtable::translation::id).arg(id);

@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+	m_curShowDateId = -1;
 	helper = SqlHelper::Instance();
 	m_trayIcon = new QSystemTrayIcon(this);
 	m_trayIcon->setIcon(QIcon(":/MainWIndow/resources/ico/tray_icon.png"));
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget* parent)
 	InitLayout();
 	InitTable();
 	m_trayIcon->show();
+	helper->SetForeignKeySupport(true);
 #ifdef _DEBUG
 	//WordModel word;
 	//word.SetWord("abadon");
@@ -40,6 +42,7 @@ MainWindow::MainWindow(QWidget* parent)
 	// 绑定搜索快捷键
 	BindShotCuts();
 
+	connect(ui.dateList, &ContentList::deleteDate, this, &MainWindow::onDeleteDate);
 	connect(ui.dateList, &ContentList::itemDoubleClicked, this, &MainWindow::onDateListItemDoubleClicked);
 	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
 	// 系统托盘
@@ -119,6 +122,7 @@ void MainWindow::Save()
 			}
 		}
 	}
+	ui.dateList->Update();
 }
 
 void MainWindow::BindShotCuts()
@@ -160,8 +164,11 @@ void MainWindow::changeEvent(QEvent* event)
 
 void MainWindow::ShowWordsByDate(QString curDate)
 {
-	ui.wordTable->clear();
 	int date_id = dataDao->GetDataModelByDate(curDate).GetId();
+	if(m_curShowDateId != -1 && m_curShowDateId == date_id)
+		return;
+	m_curShowDateId = date_id;
+	ui.wordTable->Init();
 	for(auto const& word: wordDao->GetWordModelByDataId(date_id))
 	{
 		 QList<TranslationModel> transList = translationDao->GetTranslationModelByWordId(word.GetId());
@@ -176,6 +183,17 @@ void MainWindow::onOpenActionTriggered(bool checked)
 void MainWindow::onDateListItemDoubleClicked(QListWidgetItem* item)
 {
 	ShowWordsByDate(item->text());
+}
+
+void MainWindow::onDeleteDate()
+{
+	int date_id = ui.dateList->currentItem()->data(Qt::UserRole).toInt();
+
+	// 删除日期记录
+	dataDao->DeleteById(date_id);
+
+	ui.dateList->Update();
+	ui.wordTable->Init();
 }
 
 void MainWindow::OnShowSentence()

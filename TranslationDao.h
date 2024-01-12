@@ -14,7 +14,7 @@ namespace dao
 		QList<TranslationModel> GetAllTranslation();
 		QList<TranslationModel> GetTranslationModelByWordId(int word_id);
 		TranslationModel GetTranslationModelById(int id);
-
+		void DeleteByWordId(int word_id);
 		void UpdateWithId(int id, TranslationModel model);
 		int Exists(int word_id, int sub_id);
 

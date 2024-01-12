@@ -15,6 +15,7 @@ namespace dao
 		QList<WordModel> GetWordModelByDataId(int data_id);
 		WordModel GetWordModelById(int id);
 
+		void DeleteByDataId(int data_id);
 	private:
 		WordDao()
 		{

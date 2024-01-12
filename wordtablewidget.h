@@ -39,6 +39,9 @@ public:
 	WordTableWidget(QWidget* parent = nullptr);
 	~WordTableWidget();
 
+	// 初始化表格
+	void Init();
+
 	/*
 	 * @brief 向行尾添加新的生词记录
 	 * @author xyr
@@ -65,7 +68,6 @@ public:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
-
 signals:
 	void TableClicked();
 

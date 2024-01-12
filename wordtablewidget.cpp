@@ -133,6 +133,12 @@ WordRecord WordTableWidget::GetWordRecord(int row)
 	return record;
 }
 
+void WordTableWidget::Init()
+{
+	setRowCount(0);
+	AppendRow();
+}
+
 QList<WordRecord> WordTableWidget::Pack()
 {
 	QList<WordRecord> recordList;
