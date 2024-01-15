@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include "ui_mainwindow.h"
 #include "datamodel.h"
-
+#include "cellbtn.h"
 namespace dao
 {
 	class WordDao;

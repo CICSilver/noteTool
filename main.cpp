@@ -10,6 +10,8 @@
 #include <iostream>
 #include "WordDao.h"
 #include "SearchApi.h"
+#include "serverthread.h"
+#include "websocketserver.h"
 #endif // _DEBUG
 
 #include <qdebug.h>
@@ -25,8 +27,11 @@ int main(int argc, char* argv[])
 	SetConsoleOutputCP(CP_UTF8);
 #endif // _DEBUG
 	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
+	//MainWindow w;
+	//w.show();
+	WebsocketServer server;
+	server.Start();
+
 	//SearchApi* api = SearchApi::Instance();
 	//api->FetchWord("spare");
 	return a.exec();
