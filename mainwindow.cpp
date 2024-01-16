@@ -14,6 +14,7 @@
 #include "WordDao.h"
 #include "DataDao.h"
 #include "TranslationDao.h"
+
 using namespace dbtable;
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
@@ -27,7 +28,14 @@ MainWindow::MainWindow(QWidget* parent)
 	wordDao = dao::WordDao::Instance();
 	translationDao = dao::TranslationDao::Instance();
 
+	// 启动捕获服务
+	m_captureServer = new WebsocketServer();
+	m_captureServer->Start();
+
+	// 初始化布局
 	InitLayout();
+
+	// 初始化单词表格
 	InitTable();
 	m_trayIcon->show();
 	helper->SetForeignKeySupport(true);

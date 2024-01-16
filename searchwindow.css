@@ -1,0 +1,87 @@
+h1 { text-align: center; }
+h3 { text-align: center; font-style: italic; font-weight: bold; }
+hr { border: 1px solid #000; }
+.translation { 
+    background-color: #eae5e5; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+}
+.zh {
+    font-size: 17px;
+    display: block;
+    margin: -10px 0 20px;
+}
+.ddef_d {
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1.5;
+    display: block;
+    margin-left: 20px;
+}
+
+.entrance {
+    margin-left: 20px;
+    font-size: 18px;
+}
+
+.ddef_b .dexamp {
+    margin-right: 22px;
+    position: relative;
+    font-size: 17px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.dexamp .eg, .dexamp.eg {
+    padding-right: 15px;
+    font-style: italic;
+    vertical-align: initial;
+}
+
+.dexamp .eg {
+    font-family: Arial,Helvetica,"Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif,ico-c;
+}
+
+.dexamp .trans, .dexamp.trans {
+    vertical-align: initial;
+}
+
+.dtrans {
+    color: #0580e8;
+}
+
+.hdb {
+    display: block;
+}
+
+.pos {
+    font-weight: 700;
+    text-align:center;
+}
+
+.dpos {
+    font-size: 15px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.hr-solid {
+    border: none;
+    border-top: 2px solid #000;
+}
+
+.hr-dashed {
+    border: none;
+    border-top: 2px dashed #000;
+}
+
+.hr-dotted {
+    border: none;
+    border-top: 2px dotted #000;
+}
+
+.hr-gradient {
+    border: none;
+    height: 2px;
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+}

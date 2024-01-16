@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QWebSocketServer>
 #include <QWebSocket>
+#include "SearchApi.h"
 class WebsocketWorker : public QObject
 {
 	Q_OBJECT
@@ -15,6 +16,7 @@ public:
 			QStringLiteral("My WebSocket Server"),
 			QWebSocketServer::NonSecureMode, 
 			this);
+		m_api = SearchApi::Instance();
 	}
 	~WebsocketWorker()
 	{
@@ -58,6 +60,7 @@ public slots:
 	{
 		QWebSocket* socket = qobject_cast<QWebSocket*>(sender());
 		qDebug() << "[Capture Server] receive new message:" << message;
+		m_api->FetchWord(message);
 		if (socket) {
 			socket->sendTextMessage(message);
 		}
@@ -74,6 +77,7 @@ public slots:
 private:
 	QWebSocketServer* m_webSocketServer;
 	QList<QWebSocket*> m_clients;
+	SearchApi* m_api;
 };
 
 class WebsocketServer  : public QObject

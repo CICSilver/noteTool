@@ -12,6 +12,7 @@
 #include "SearchApi.h"
 #include "serverthread.h"
 #include "websocketserver.h"
+#include "searchwindow.h"
 #endif // _DEBUG
 
 #include <qdebug.h>
@@ -29,10 +30,13 @@ int main(int argc, char* argv[])
 	QApplication a(argc, argv);
 	//MainWindow w;
 	//w.show();
-	WebsocketServer server;
-	server.Start();
+
+	SearchWindow w;
+	//w.show();
+	/*WebsocketServer server;
+	server.Start();*/
 
 	//SearchApi* api = SearchApi::Instance();
-	//api->FetchWord("spare");
+	//api->FetchWord("test");
 	return a.exec();
 }

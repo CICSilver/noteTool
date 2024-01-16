@@ -5,13 +5,13 @@
 #include "ui_mainwindow.h"
 #include "datamodel.h"
 #include "cellbtn.h"
+#include "websocketserver.h"
 namespace dao
 {
 	class WordDao;
 	class TranslationDao;
 	class DataDao;
 }
-
 class QSystemTrayIcon;
 class CellBtn;
 class SqlHelper;
@@ -53,4 +53,5 @@ private:
 	dao::TranslationDao* translationDao;
 	QSystemTrayIcon *m_trayIcon;
 	int m_curShowDateId;
+	WebsocketServer* m_captureServer;
 };
