@@ -7,6 +7,7 @@ WebsocketServer::WebsocketServer(QObject *parent)
 	m_pWorker->moveToThread(&m_workThread);
 	connect(&m_workThread, &QThread::finished, m_pWorker, &QObject::deleteLater);
 	connect(this, &WebsocketServer::Start, m_pWorker, &WebsocketWorker::doWork);
+	connect(m_pWorker, &WebsocketWorker::wordCapturedSignal, this, &WebsocketServer::wordCapturedSignal);
 	m_workThread.start();
 }
 

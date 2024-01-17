@@ -1,3 +1,7 @@
+body{
+    background-color: #E1E0C7;
+    padding-right: 20px;
+}
 h1 { text-align: center; }
 h3 { text-align: center; font-style: italic; font-weight: bold; }
 hr { border: 1px solid #000; }
@@ -6,22 +10,11 @@ hr { border: 1px solid #000; }
     border: 1px solid #ccc; 
     padding: 10px; 
 }
-.zh {
-    font-size: 17px;
-    display: block;
-    margin: -10px 0 20px;
-}
 .ddef_d {
-    margin-top: 10px;
     font-size: 18px;
     line-height: 1.5;
     display: block;
     margin-left: 20px;
-}
-
-.entrance {
-    margin-left: 20px;
-    font-size: 18px;
 }
 
 .ddef_b .dexamp {
@@ -84,4 +77,46 @@ hr { border: 1px solid #000; }
     border: none;
     height: 2px;
     background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+}
+
+/* .sentence{
+
+} */
+
+.ddexamp {
+    margin-left: 20px;
+    margin-top: 13px;
+    margin-bottom: 13px;
+    font-size: 15px;
+    padding-left: 15px;
+}
+
+.block {
+    background-color: #F0EFE2;
+    border: 1px solid #C8C7BC;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.indent {
+    text-indent: 13px
+}
+
+.sonspic {
+    padding-left:15px;
+    height: auto;
+    clear: both;
+    /*background-color: #F0EFE2;*/
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid #C8C7BC;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.subblock {
+    border-top: solid 3px #5d2fc1;
+    margin-bottom: 30px;
 }

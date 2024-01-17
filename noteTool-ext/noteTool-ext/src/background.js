@@ -9,7 +9,7 @@ var webSocket;
 var url = 'ws://127.0.0.1:58585';
 var isConnected = false;
 var isConncting = false;
-webSocket = new WebSocket(url);
+// webSocket = new WebSocket(url);
 function connect() {
   webSocket = new WebSocket(url);
 

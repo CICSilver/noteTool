@@ -14,6 +14,7 @@
 #include "WordDao.h"
 #include "DataDao.h"
 #include "TranslationDao.h"
+#include "SearchApi.h"
 
 using namespace dbtable;
 MainWindow::MainWindow(QWidget* parent)
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui.setupUi(this);
 	m_curShowDateId = -1;
 	helper = SqlHelper::Instance();
+	m_searchWindow = nullptr;
 	m_trayIcon = new QSystemTrayIcon(this);
 	m_trayIcon->setIcon(QIcon(":/MainWIndow/resources/ico/tray_icon.png"));
 	dataDao = dao::DataDao::Instance();
@@ -49,6 +51,7 @@ MainWindow::MainWindow(QWidget* parent)
 	// 绑定搜索快捷键
 	BindShotCuts();
 
+	connect(m_captureServer, &WebsocketServer::wordCapturedSignal, this, &MainWindow::onWordCaptured);
 	connect(ui.dateList, &ContentList::deleteDate, this, &MainWindow::onDeleteDate);
 	connect(ui.dateList, &ContentList::itemDoubleClicked, this, &MainWindow::onDateListItemDoubleClicked);
 	connect(ui.openAction, &QAction::triggered, this, &MainWindow::onOpenActionTriggered);
@@ -201,6 +204,14 @@ void MainWindow::onDeleteDate()
 
 	ui.dateList->Update();
 	ui.wordTable->Init();
+}
+
+void MainWindow::onWordCaptured(QString word)
+{
+	if(!m_searchWindow)
+		m_searchWindow = new SearchWindow();
+	m_searchWindow->Clear();
+	m_searchWindow->FetchWord(word);
 }
 
 void MainWindow::OnShowSentence()

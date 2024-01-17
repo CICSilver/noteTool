@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QWebSocketServer>
 #include <QWebSocket>
-#include "SearchApi.h"
+#include <QTimer>
 class WebsocketWorker : public QObject
 {
 	Q_OBJECT
@@ -16,15 +16,11 @@ public:
 			QStringLiteral("My WebSocket Server"),
 			QWebSocketServer::NonSecureMode, 
 			this);
-		m_api = SearchApi::Instance();
+		//connect(&m_timer, &QTimer::timeout, this, &WebsocketWorker::CheckConnection);
 	}
 	~WebsocketWorker()
 	{
-		if(m_webSocketServer)
-		{
-			delete m_webSocketServer;
-			m_webSocketServer = nullptr;
-		}
+		m_webSocketServer->deleteLater();
 	}
 
 	void InitWebSocketServer()
@@ -41,11 +37,26 @@ public:
 			qDebug() << "[Capture Server] start failed.";
 		}
 	}
-
+signals:
+	void wordCapturedSignal(QString word);
 public slots:
 	void doWork()
 	{
 		InitWebSocketServer();
+		//m_timer.start(30000);	// 30秒检查一次连接状态
+	}
+
+	// 检查存储的连接状态,删除已经断开的连接
+	void CheckConnection()
+	{
+		for (auto& socket : m_clients)
+		{
+			if (socket->state() != QAbstractSocket::ConnectedState)
+			{
+				m_clients.removeAll(socket);
+				socket->deleteLater();
+			}
+		}
 	}
 	void onNewConnection()
 	{
@@ -53,16 +64,21 @@ public slots:
 		qDebug() << "[Capture Server] new Connection...";
 		connect(socket, &QWebSocket::textMessageReceived, this, &WebsocketWorker::processTextMessage);
 		connect(socket, &QWebSocket::disconnected, this, &WebsocketWorker::socketDisconnected);
-
 		m_clients << socket;
 	}
+
 	void processTextMessage(QString message)
 	{
 		QWebSocket* socket = qobject_cast<QWebSocket*>(sender());
 		qDebug() << "[Capture Server] receive new message:" << message;
-		m_api->FetchWord(message);
-		if (socket) {
-			socket->sendTextMessage(message);
+		// 去除包含的空格
+		message = message.trimmed();
+		if (!message.isEmpty())
+		{
+			emit wordCapturedSignal(message);
+			if (socket) {
+				socket->sendTextMessage(QString("capture sucess, capture word:%1").arg(message));
+			}
 		}
 	}
 	void socketDisconnected()
@@ -77,7 +93,7 @@ public slots:
 private:
 	QWebSocketServer* m_webSocketServer;
 	QList<QWebSocket*> m_clients;
-	SearchApi* m_api;
+	QTimer m_timer;
 };
 
 class WebsocketServer  : public QObject
@@ -87,9 +103,9 @@ class WebsocketServer  : public QObject
 public:
 	WebsocketServer(QObject *parent = nullptr);
 	~WebsocketServer();
-
 signals:
 	void Start();
+	void wordCapturedSignal(QString word);
 private:
 	QThread m_workThread;
 	WebsocketWorker* m_pWorker;

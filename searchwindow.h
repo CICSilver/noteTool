@@ -12,7 +12,9 @@ public:
 	SearchWindow(QWidget *parent = nullptr);
 	~SearchWindow();
 
+	void Clear();
 	QString toHtml(const FetchedWordInfo& info);
+	void FetchWord(QString word);
 public slots:
 	void onWordFetched(FetchedWordInfo wordInfo);
 

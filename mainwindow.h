@@ -6,12 +6,14 @@
 #include "datamodel.h"
 #include "cellbtn.h"
 #include "websocketserver.h"
+#include "searchwindow.h"
 namespace dao
 {
 	class WordDao;
 	class TranslationDao;
 	class DataDao;
 }
+class SearchApi;
 class QSystemTrayIcon;
 class CellBtn;
 class SqlHelper;
@@ -44,6 +46,7 @@ protected slots:
 	void onOpenActionTriggered(bool checked);
 	void onDateListItemDoubleClicked(QListWidgetItem* item);
 	void onDeleteDate();
+	void onWordCaptured(QString word);
 private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
@@ -54,4 +57,5 @@ private:
 	QSystemTrayIcon *m_trayIcon;
 	int m_curShowDateId;
 	WebsocketServer* m_captureServer;
+	SearchWindow* m_searchWindow;
 };

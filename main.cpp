@@ -28,10 +28,10 @@ int main(int argc, char* argv[])
 	SetConsoleOutputCP(CP_UTF8);
 #endif // _DEBUG
 	QApplication a(argc, argv);
-	//MainWindow w;
-	//w.show();
+	MainWindow w;
+	w.show();
 
-	SearchWindow w;
+	//SearchWindow w;
 	//w.show();
 	/*WebsocketServer server;
 	server.Start();*/
