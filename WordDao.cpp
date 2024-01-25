@@ -43,3 +43,8 @@ void dao::WordDao::DeleteByDataId(int data_id)
 	helper->Delete(dbtable::word::tableName, QString("data_id=%1").arg(data_id));
 	//helper->CloseDB();
 }
+
+void dao::WordDao::DeleteByWord(QString word)
+{
+	helper->Delete(dbtable::word::tableName, QString("word='%1'").arg(word));
+}

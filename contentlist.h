@@ -22,6 +22,7 @@ signals:
 	
 protected slots:
 	void onDeleteActionTriggered();
+	void onExamActionTriggered();
 private:
 	SqlHelper* helper;
 	QMenu* m_contextMenu;

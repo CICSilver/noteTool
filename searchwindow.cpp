@@ -74,5 +74,6 @@ void SearchWindow::onWordFetched(FetchedWordInfo wordInfo)
 	QString html = toHtml(wordInfo);
 	ui.textEdit->setHtml(html);
     this->show();
-    this->setFocus();
+    this->activateWindow();
+    this->raise();
 }

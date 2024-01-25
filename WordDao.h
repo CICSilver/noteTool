@@ -16,6 +16,7 @@ namespace dao
 		WordModel GetWordModelById(int id);
 
 		void DeleteByDataId(int data_id);
+		void DeleteByWord(QString word);
 	private:
 		WordDao()
 		{

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>647</width>
+    <width>842</width>
     <height>472</height>
    </rect>
   </property>
@@ -80,7 +80,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>647</width>
+     <width>842</width>
      <height>26</height>
     </rect>
    </property>
@@ -91,7 +91,14 @@
     <addaction name="openAction"/>
     <addaction name="saveAction"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>工具</string>
+    </property>
+    <addaction name="actionSolo"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <action name="openAction">
    <property name="text">
@@ -101,6 +108,11 @@
   <action name="saveAction">
    <property name="text">
     <string>2</string>
+   </property>
+  </action>
+  <action name="actionSolo">
+   <property name="text">
+    <string>Solo</string>
    </property>
   </action>
  </widget>

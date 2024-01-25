@@ -20,13 +20,14 @@ struct WordRecord
 	QList<TranslationModel> transList;
 };
 
+class TextEditDelegate;
 class QPushButton;
 class CellBtn;
 class WordTableWidget : public QTableWidget
 {
 	Q_OBJECT
 
-public:
+private:
 	enum Col
 	{
 		wordCol = 0,
@@ -65,9 +66,12 @@ public:
 	 */
 	QList<WordRecord> Pack();
 
+	QByteArray Hash();
+	
 	bool eventFilter(QObject* obj, QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
 signals:
 	void TableClicked();
 
@@ -102,9 +106,10 @@ private:
 	 */
 	bool CheckIsLastRow(int row);
 private:
-	const int m_col_count = 4;
+	int m_col_count;
 	QList<QString> m_sentenceList;
 	QList<CellBtn*> m_cellBtnList;
 	QPushButton* m_addBtn;
+	TextEditDelegate* m_textEditDelegate;
 	int m_lastRow;
 };

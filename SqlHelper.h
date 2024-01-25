@@ -62,7 +62,7 @@ private:
 	SqlHelper()
 	{
 		m_isForeignKeySupport = false;
-		QString dbPath = "./data/";
+		QString dbPath = "C:/Users/10385/OneDrive/note_database/";
 		QDir dir;
 		if (!dir.exists(dbPath))
 		{

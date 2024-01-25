@@ -7,6 +7,7 @@
 #include "cellbtn.h"
 #include "websocketserver.h"
 #include "searchwindow.h"
+#include "SoloWindow.h"
 namespace dao
 {
 	class WordDao;
@@ -47,6 +48,7 @@ protected slots:
 	void onDateListItemDoubleClicked(QListWidgetItem* item);
 	void onDeleteDate();
 	void onWordCaptured(QString word);
+	void onActionSoloTriggered();
 private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
@@ -58,4 +60,6 @@ private:
 	int m_curShowDateId;
 	WebsocketServer* m_captureServer;
 	SearchWindow* m_searchWindow;
+	QByteArray m_lastSaveHash;
+	SoloWindow* m_soloWindow;
 };

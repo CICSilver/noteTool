@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QSystemTrayIcon>
 #include <QShortcut>
+#include <QMessageBox>
 #include "SqlHelper.h"
 #include "model/translationModel.h"
 #include "WordDao.h"
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
 	m_curShowDateId = -1;
 	helper = SqlHelper::Instance();
 	m_searchWindow = nullptr;
+	m_soloWindow = nullptr;
 	m_trayIcon = new QSystemTrayIcon(this);
 	m_trayIcon->setIcon(QIcon(":/MainWIndow/resources/ico/tray_icon.png"));
 	dataDao = dao::DataDao::Instance();
@@ -51,6 +53,7 @@ MainWindow::MainWindow(QWidget* parent)
 	// 绑定搜索快捷键
 	BindShotCuts();
 
+	connect(ui.actionSolo, &QAction::triggered, this, &MainWindow::onActionSoloTriggered);
 	connect(m_captureServer, &WebsocketServer::wordCapturedSignal, this, &MainWindow::onWordCaptured);
 	connect(ui.dateList, &ContentList::deleteDate, this, &MainWindow::onDeleteDate);
 	connect(ui.dateList, &ContentList::itemDoubleClicked, this, &MainWindow::onDateListItemDoubleClicked);
@@ -72,6 +75,7 @@ MainWindow::MainWindow(QWidget* parent)
 			//ui.wordTable->setFocus();
 		});
 	this->installEventFilter(ui.wordTable);
+
 }
 
 MainWindow::~MainWindow()
@@ -92,16 +96,32 @@ void MainWindow::InitTable()
 	// 再根据释义关联的单词id添加
 	// 
 	QString curDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	ShowWordsByDate(curDate);
+	DataModel dataModel = dataDao->GetDataModelByDate(curDate);
+	if (dataModel.isEmpty())
+	{
+		//创建日期记录
+		Save();
+	}
+	//ShowWordsByDate(curDate);
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
 {
+	QByteArray curHash = ui.wordTable->Hash();
+	if(curHash != m_lastSaveHash)
+	{
+		int ret = QMessageBox::warning(this, "警告", "内容未保存，是否保存?", "取消", "确认");
+		if(ret == QMessageBox::Accepted)
+		{
+			Save();
+		}
+	}
 	QMainWindow::closeEvent(e);
 }
 
 void MainWindow::Save()
 {
+	m_lastSaveHash = ui.wordTable->Hash();
 	DataModel dataModel;
 	dataModel.SetDate(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
 	helper->Insert<DataModel>(data::tableName, dataModel);
@@ -109,6 +129,25 @@ void MainWindow::Save()
 	query.last();
 	int data_id = query.value(data::id).toInt();
 	QList<WordRecord> recordList = ui.wordTable->Pack();
+	// 获取数据库中的全部单词记录，删除不存在于recordList中的记录
+	auto WordListInDB = wordDao->GetWordModelByDataId(data_id);
+	for (auto& wordModel : WordListInDB)
+	{
+		bool isExist = false;
+		for (auto& record : recordList)
+		{
+			if (record.word.GetWord() == wordModel.GetWord())
+			{
+				isExist = true;
+				break;
+			}
+		}
+		if (!isExist)
+		{
+			// 删除单词
+			wordDao->DeleteByWord(wordModel.GetWord());
+		}
+	}
 	for (WordRecord& record : recordList)
 	{
 		record.word.SetDataId(data_id);
@@ -140,7 +179,6 @@ void MainWindow::BindShotCuts()
 	QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
 	connect(shortcut, &QShortcut::activated, this, [&]()
 	{
-		qDebug() << "Search word";
 	});
 
 	connect(new QShortcut(QKeySequence("Ctrl+S"), this), &QShortcut::activated, this, [&]()
@@ -212,6 +250,13 @@ void MainWindow::onWordCaptured(QString word)
 		m_searchWindow = new SearchWindow();
 	m_searchWindow->Clear();
 	m_searchWindow->FetchWord(word);
+}
+
+void MainWindow::onActionSoloTriggered()
+{
+	if(!m_soloWindow)
+		m_soloWindow = new SoloWindow();
+	m_soloWindow->show();
 }
 
 void MainWindow::OnShowSentence()

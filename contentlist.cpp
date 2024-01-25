@@ -1,4 +1,4 @@
-﻿#include "contentlist.h"
+#include "contentlist.h"
 #include "SqlHelper.h"
 #include "datamodel.h"
 #include "WordDao.h"
@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QMenu>
 #include <QDebug>
+#include <QMessageBox>
 ContentList::ContentList(QWidget *parent)
 	: QListWidget(parent)
 {
@@ -29,6 +30,9 @@ void ContentList::InitContextMenu()
 	m_contextMenu = new QMenu(this);
 	QAction* deleteAction = new QAction("删除", this);
 	connect(deleteAction, &QAction::triggered, this, &ContentList::onDeleteActionTriggered);
+
+	QAction* examAction = new QAction("测验", this);
+	connect(examAction, &QAction::triggered, this, &ContentList::onExamActionTriggered);
 	m_contextMenu->addAction(deleteAction);
 }
 
@@ -61,10 +65,8 @@ void ContentList::contextMenuEvent(QContextMenuEvent* event)
 
 void ContentList::mouseDoubleClickEvent(QMouseEvent* event)
 {
-	qDebug() << "mouseDoubleClickEvent";
 	if(event->button() == Qt::RightButton)
 	{
-		qDebug() << "right double clicked";
 		event->ignore();
 		return;
 	}
@@ -73,5 +75,13 @@ void ContentList::mouseDoubleClickEvent(QMouseEvent* event)
 
 void ContentList::onDeleteActionTriggered()
 {
-	emit deleteDate();
+	int ret = QMessageBox::warning(this, "警告", "是否确认删除?", "取消", "确认");
+	if (ret == QMessageBox::Accepted)
+	{
+		emit deleteDate();
+	}
+}
+
+void ContentList::onExamActionTriggered()
+{
 }

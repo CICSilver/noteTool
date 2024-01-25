@@ -1,16 +1,21 @@
-﻿#include "wordtablewidget.h"
+#include "wordtablewidget.h"
 #include "TranslationDao.h"
 #include "cellbtn.h"
+#include "TextEditDelegate.h"
 #include <QHeaderView>
 #include <QDebug>
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QCryptographicHash>
+
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
 	m_lastRow = -1;
+	m_col_count = 4;
+	m_textEditDelegate = new TextEditDelegate;
 	m_addBtn = new QPushButton("+", this);
 	m_addBtn->setToolTip("添加释义");
 	m_addBtn->setGeometry(0, 0, 16, 16);
@@ -25,6 +30,11 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	setFocusPolicy(Qt::NoFocus);
 	horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	setHorizontalHeaderLabels(QStringList() << "生词" << "中文释义" << "英文释义" << "词根" << "例句");
+	this->setItemDelegateForColumn(1, m_textEditDelegate);
+	this->setItemDelegateForColumn(2, m_textEditDelegate);
+	//this->setWordWrap(true);
+	this->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 	AppendRow();
 	// 最后一行写入后增加新行
 	connect(this, &WordTableWidget::itemChanged, this, [this](QTableWidgetItem *item)
@@ -59,6 +69,27 @@ int WordTableWidget::AppendRow(int row, bool isSpan)
 		this->setSpan(curRow, wordCol, curSpan + 1, 1);
 		return curRow;
 	}
+}
+
+QByteArray WordTableWidget::Hash()
+{
+	QCryptographicHash hash(QCryptographicHash::Md5);
+	for (int row = 0; row < rowCount(); ++row) {
+		for (int column = 0; column < columnCount(); ++column) {
+			QTableWidgetItem* item = this->item(row, column);
+			if (item) {
+				hash.addData(item->text().toUtf8());
+			}
+		}
+	}
+	return hash.result().toHex();
+}
+
+void WordTableWidget::wheelEvent(QWheelEvent* event)
+{
+	m_addBtn->hide();
+	this->clearSelection();
+	QTableWidget::wheelEvent(event);
 }
 
 bool WordTableWidget::CheckRowEmpty(int row)
@@ -225,7 +256,7 @@ void WordTableWidget::onAddBtnClicked()
 	// 获取当前行
 	int row = currentRow();
 	
-	AppendRow(true);
+	AppendRow(-1, true);
 	//insertRow(row + 1);
 }
 
