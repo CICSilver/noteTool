@@ -95,7 +95,7 @@ QSet<int> SoloWindow::NumbersLeftInRegion(int startRow, int startCol)
 		for(int col = startCol;col < startCol + m_regionCnt; ++col)
 		{
 			if (CheckInvalid(row, gridCnt) || CheckInvalid(col, gridCnt))
-				return;
+				return QSet<int>();
 			int val = m_cells[row][col].value();
 			numSet.remove(val);
 		}

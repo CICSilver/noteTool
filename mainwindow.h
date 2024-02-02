@@ -49,6 +49,9 @@ protected slots:
 	void onDeleteDate();
 	void onWordCaptured(QString word);
 	void onActionSoloTriggered();
+
+signals:
+	void DateListItemDoubleClicked();
 private:
 	Ui::MainWindowClass ui;
 	DataModel m_dataModel;
@@ -62,4 +65,5 @@ private:
 	SearchWindow* m_searchWindow;
 	QByteArray m_lastSaveHash;
 	SoloWindow* m_soloWindow;
+	QString m_curShowDate;
 };

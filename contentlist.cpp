@@ -87,7 +87,7 @@ void ContentList::onDeleteActionTriggered()
 
 void ContentList::onExamActionTriggered()
 {
-	if(!m_examWindow)
-		m_examWindow = new ExamWindow();
-	m_examWindow->show();
+	//if(!m_examWindow)
+	//	m_examWindow = new ExamWindow();
+	//m_examWindow->show();
 }
