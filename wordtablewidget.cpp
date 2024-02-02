@@ -9,12 +9,14 @@
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QCryptographicHash>
+#include <QTextCharFormat>
 
 WordTableWidget::WordTableWidget(QWidget* parent)
 	: QTableWidget(parent)
 {
 	m_lastRow = -1;
-	m_col_count = 4;
+	// 设置列数
+	m_col_count = 5;
 	m_textEditDelegate = new TextEditDelegate;
 	m_addBtn = new QPushButton("+", this);
 	m_addBtn->setToolTip("添加释义");
@@ -28,13 +30,23 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 	setPalette(QPalette(Qt::gray)); // 设置隔行变色的颜色  gray灰色
 	setColumnCount(m_col_count);
 	setFocusPolicy(Qt::NoFocus);
-	horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	setHorizontalHeaderLabels(QStringList() << "生词" << "中文释义" << "英文释义" << "词根" << "例句");
-	this->setItemDelegateForColumn(1, m_textEditDelegate);
-	this->setItemDelegateForColumn(2, m_textEditDelegate);
+	// 设置前四列的宽度
+	//horizontalHeader()->setSectionResizeMode(wordCol, QHeaderView::Fixed);
+	setColumnWidth(wordCol, 150);
+	for (int i = 1; i < 4; ++i) {
+		//horizontalHeader()->setSectionResizeMode(i, QHeaderView::Fixed);
+		setColumnWidth(i, 130);
+	}
+	horizontalHeader()->setSectionResizeMode(sentenceCol, QHeaderView::Stretch);
+	this->setItemDelegateForColumn(transZhCol, m_textEditDelegate);
+	this->setItemDelegateForColumn(transEnCol, m_textEditDelegate);
+	this->setItemDelegateForColumn(rootCol, m_textEditDelegate);
+	this->setItemDelegateForColumn(sentenceCol, new HighlightDelegate(wordCol));
 	//this->setWordWrap(true);
 	this->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
+	//setColumnWidth(4, 500);
+	//qDebug() << this->columnWidth(1) << columnWidth(2) << columnWidth(3);
 	AppendRow();
 	// 最后一行写入后增加新行
 	connect(this, &WordTableWidget::itemChanged, this, [this](QTableWidgetItem *item)
@@ -43,7 +55,6 @@ WordTableWidget::WordTableWidget(QWidget* parent)
 			if (!item->text().isEmpty() && realRow == m_lastRow)
 				AppendRow();
 		});
-
 	connect(this, &WordTableWidget::cellClicked, this, &WordTableWidget::onCellClicked);
 	connect(m_addBtn, &QPushButton::clicked, this, &WordTableWidget::onAddBtnClicked);
 }
@@ -106,6 +117,12 @@ bool WordTableWidget::CheckIsLastRow(int row)
 	return false;
 }
 
+void WordTableWidget::onDateListItemDoubleClicked()
+{
+	if (!m_addBtn->isHidden())
+		m_addBtn->setHidden(true);
+}
+
 WordTableWidget::~WordTableWidget()
 {}
 
@@ -124,7 +141,7 @@ void WordTableWidget::AppendWordRecord(const WordRecord record)
 		this->setItem(curRow, transZhCol, new QTableWidgetItem(record.transList[i].GetZhTranslation()));
 		this->setItem(curRow, transEnCol, new QTableWidgetItem(record.transList[i].GetEnTranslation()));
 		this->setItem(curRow, rootCol, new QTableWidgetItem(record.transList[i].GetRoot()));
-		this->setItem(curRow, senetenceCol, new QTableWidgetItem(record.transList[i].GetSentence()));
+		this->setItem(curRow, sentenceCol, new QTableWidgetItem(record.transList[i].GetSentence()));
 		// 非最后一个，则继续增加合并行
 		if(i != record.transList.size() - 1) AppendRow(curRow - rowSpan(curRow, wordCol) + 1, true);
 	}
@@ -154,8 +171,8 @@ WordRecord WordTableWidget::GetWordRecord(int row)
 			trans.SetZhTranslation(item(curRow, transZhCol)->text());
 		if (item(curRow, transEnCol))
 			trans.SetEnTranslation(item(curRow, transEnCol)->text());
-		if (item(curRow, senetenceCol))
-			trans.SetSentence(item(curRow, senetenceCol)->text());
+		if (item(curRow, sentenceCol))
+			trans.SetSentence(item(curRow, sentenceCol)->text());
 		if (item(curRow, rootCol))
 			trans.SetRoot(item(curRow, rootCol)->text());
 		trans.SetSubId(i);

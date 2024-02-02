@@ -10,6 +10,7 @@
 #include <QSystemTrayIcon>
 #include <QShortcut>
 #include <QMessageBox>
+#include <QFile>
 #include "SqlHelper.h"
 #include "model/translationModel.h"
 #include "WordDao.h"
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+	m_curShowDate = "";
 	m_curShowDateId = -1;
 	helper = SqlHelper::Instance();
 	m_searchWindow = nullptr;
@@ -43,16 +45,10 @@ MainWindow::MainWindow(QWidget* parent)
 	InitTable();
 	m_trayIcon->show();
 	helper->SetForeignKeySupport(true);
-#ifdef _DEBUG
-	//WordModel word;
-	//word.SetWord("abadon");
-	//word.SetTranslation("放弃");
-	//word.SetRoot("don");
-	//ui.wordTable->AppendWordRecord(word);
-#endif
 	// 绑定搜索快捷键
 	BindShotCuts();
 
+	connect(this, &MainWindow::DateListItemDoubleClicked, ui.wordTable, &WordTableWidget::onDateListItemDoubleClicked);
 	connect(ui.actionSolo, &QAction::triggered, this, &MainWindow::onActionSoloTriggered);
 	connect(m_captureServer, &WebsocketServer::wordCapturedSignal, this, &MainWindow::onWordCaptured);
 	connect(ui.dateList, &ContentList::deleteDate, this, &MainWindow::onDeleteDate);
@@ -121,13 +117,25 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
 void MainWindow::Save()
 {
+	// 保存一个备份
+	QString backupPath = QApplication::applicationDirPath() + "/../" + helper->GetDBPath() + "backup/";
+	QDir backupDir(backupPath);
+	if (!backupDir.exists())
+	{
+		backupDir.mkpath(backupPath);
+	}
+	QFile::copy(helper->GetFullDBPath(), backupPath + helper->GetDBName());
+
+	// 保存当前数据
 	m_lastSaveHash = ui.wordTable->Hash();
 	DataModel dataModel;
-	dataModel.SetDate(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+	// 如果当前有选中的日期，则获取选择的日期
+	QString dateStr = m_curShowDate.isEmpty() ? QDateTime::currentDateTime().toString("yyyy-MM-dd") : m_curShowDate;
+	dataModel.SetDate(dateStr);
 	helper->Insert<DataModel>(data::tableName, dataModel);
-	QSqlQuery query = helper->Where(data::tableName, "1=1");
-	query.last();
-	int data_id = query.value(data::id).toInt();
+	//QSqlQuery query = helper->Where(data::tableName, "1=1");
+	//query.last();
+	int data_id = dataDao->GetDataModelByDate(dateStr).GetId();
 	QList<WordRecord> recordList = ui.wordTable->Pack();
 	// 获取数据库中的全部单词记录，删除不存在于recordList中的记录
 	auto WordListInDB = wordDao->GetWordModelByDataId(data_id);
@@ -136,11 +144,9 @@ void MainWindow::Save()
 		bool isExist = false;
 		for (auto& record : recordList)
 		{
-			if (record.word.GetWord() == wordModel.GetWord())
-			{
-				isExist = true;
-				break;
-			}
+			// 判断其是否存在于recordList中
+			isExist = (record.word.GetWord() == wordModel.GetWord());
+			if (isExist) break;
 		}
 		if (!isExist)
 		{
@@ -152,7 +158,7 @@ void MainWindow::Save()
 	{
 		record.word.SetDataId(data_id);
 		helper->Insert<WordModel>(word::tableName, record.word);
-		query = helper->Where(word::tableName, QString("%1='%2'").arg(word::word).arg(record.word.GetWord()));
+		QSqlQuery query = helper->Where(word::tableName, QString("%1='%2'").arg(word::word).arg(record.word.GetWord()));
 		query.next();
 		int word_id = query.value(word::id).toInt();
 		for(auto& transModel: record.transList)
@@ -230,7 +236,9 @@ void MainWindow::onOpenActionTriggered(bool checked)
 
 void MainWindow::onDateListItemDoubleClicked(QListWidgetItem* item)
 {
-	ShowWordsByDate(item->text());
+	m_curShowDate = item->text();
+	ShowWordsByDate(m_curShowDate);
+	emit DateListItemDoubleClicked();
 }
 
 void MainWindow::onDeleteDate()

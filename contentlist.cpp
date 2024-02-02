@@ -3,6 +3,7 @@
 #include "datamodel.h"
 #include "WordDao.h"
 #include "DataDao.h"
+#include "ExamWindow.h"
 #include <QMouseEvent>
 #include <QMenu>
 #include <QDebug>
@@ -11,6 +12,7 @@ ContentList::ContentList(QWidget *parent)
 	: QListWidget(parent)
 {
 	helper = SqlHelper::Instance();
+	m_examWindow = nullptr;
 	InitContextMenu();
 	// 初始化全部记录
 	Update();
@@ -34,6 +36,7 @@ void ContentList::InitContextMenu()
 	QAction* examAction = new QAction("测验", this);
 	connect(examAction, &QAction::triggered, this, &ContentList::onExamActionTriggered);
 	m_contextMenu->addAction(deleteAction);
+	m_contextMenu->addAction(examAction);
 }
 
 void ContentList::Update()
@@ -84,4 +87,7 @@ void ContentList::onDeleteActionTriggered()
 
 void ContentList::onExamActionTriggered()
 {
+	if(!m_examWindow)
+		m_examWindow = new ExamWindow();
+	m_examWindow->show();
 }

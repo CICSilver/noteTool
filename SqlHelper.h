@@ -58,22 +58,30 @@ public:
 	{
 		m_isForeignKeySupport = on;
 	}
+
+	QString GetDBPath() { return m_dbPath; }
+	QString GetFullDBPath() { return m_dbPath + default_dbName; }
+	QString GetDBName() { return default_dbName; }
 private:
+	QString m_dbPath;
 	SqlHelper()
 	{
 		m_isForeignKeySupport = false;
-		QString dbPath = "C:/Users/10385/OneDrive/note_database/";
+#ifndef _DEBUG
+		m_dbPath = "C:/Users/10385/OneDrive/note_database/";
+#else
+		m_dbPath = "note_database/";
+#endif
 		QDir dir;
-		if (!dir.exists(dbPath))
+		if (!dir.exists(m_dbPath))
 		{
-			dir.mkpath(dbPath);
+			dir.mkpath(m_dbPath);
 		}
-		dbPath += QString(default_dbName);
 		//添加数据库连接
 		if (!QSqlDatabase::contains(default_connName))
 		{
 			QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", default_connName);
-			db.setDatabaseName(dbPath);
+			db.setDatabaseName(GetFullDBPath());
 			db.setUserName(default_username);
 			db.setPassword(default_passwd);
 			m_connName.push_back(default_connName);

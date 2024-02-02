@@ -34,7 +34,7 @@ private:
 		transZhCol,
 		transEnCol,
 		rootCol,
-		senetenceCol
+		sentenceCol
 	};
 public:
 	WordTableWidget(QWidget* parent = nullptr);
@@ -105,6 +105,8 @@ private:
 	 * @note
 	 */
 	bool CheckIsLastRow(int row);
+public slots:
+	void onDateListItemDoubleClicked();
 private:
 	int m_col_count;
 	QList<QString> m_sentenceList;

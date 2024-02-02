@@ -2,6 +2,8 @@
 
 #include <QListWidget>
 #include "SqlHelper.h"
+
+class ExamWindow;
 class SqlHelper;
 class ContentList : public QListWidget
 {
@@ -26,4 +28,5 @@ protected slots:
 private:
 	SqlHelper* helper;
 	QMenu* m_contextMenu;
+	ExamWindow* m_examWindow;
 };
